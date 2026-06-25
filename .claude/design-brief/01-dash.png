@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:#0e0e12;color:#f3f2ee;font-family:'Hanken Grotesk',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+input,textarea,select{font-family:inherit}
+input::placeholder,textarea::placeholder{color:var(--txm,#7c776e)}
+@keyframes tpFloat{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(34px,-26px) scale(1.06)}66%{transform:translate(-22px,20px) scale(.96)}}
+@keyframes tpFadeUp{from{transform:translateY(22px) scale(.985)}to{transform:translateY(0) scale(1)}}
+@keyframes tpPop{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+@keyframes tpRaise{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes tpHand{0%,60%,100%{transform:rotate(0)}15%{transform:rotate(-18deg)}30%{transform:rotate(12deg)}45%{transform:rotate(-8deg)}}
+@keyframes tpPulse{0%{transform:scale(.7);opacity:.7}70%,100%{transform:scale(2.4);opacity:0}}
+@keyframes tpToast{from{opacity:0;transform:translate(-50%,24px)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes tpBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes tpShine{0%{transform:translateX(-120%)}60%,100%{transform:translateX(240%)}}
+</style>
+</helmet>
+<div ref="{{ rootRef }}" data-screen-label="Shaw-rawt" style="position:relative;min-height:100vh;overflow:hidden;background:var(--bg,#0e0e12);color:var(--tx,#f3f2ee);transition:background .4s ease,color .4s ease">
+
+  <div aria-hidden="true" style="position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden">
+    <div style="position:absolute;top:-120px;left:-80px;width:440px;height:440px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#ffcd00,rgba(255,205,0,0));opacity:.3;animation:tpFloat 19s ease-in-out infinite"></div>
+    <div style="position:absolute;top:120px;right:-140px;width:480px;height:480px;border-radius:50%;background:radial-gradient(circle at 50% 50%,#da291c,rgba(218,41,28,0));opacity:.26;animation:tpFloat 23s ease-in-out infinite reverse"></div>
+    <div style="position:absolute;bottom:-160px;left:34%;width:460px;height:460px;border-radius:50%;background:radial-gradient(circle at 50% 50%,#0097a9,rgba(0,151,169,0));opacity:.3;animation:tpFloat 27s ease-in-out infinite"></div>
+  </div>
+
+  <header style="position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px clamp(16px,4vw,40px);background:var(--hdr,rgba(14,14,18,.72));backdrop-filter:blur(14px);border-bottom:1px solid var(--bd,rgba(255,255,255,.08))">
+    <button onClick="{{ goHome }}" style="display:flex;align-items:center;gap:12px;border:none;background:transparent;cursor:pointer;padding:0">
+      <div style="position:relative;width:38px;height:38px;flex:none">
+        <span style="position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#86bc25"></span>
+        <span style="position:absolute;top:0;right:0;width:15px;height:15px;border-radius:50%;background:#0097a9;animation:tpBob 3.4s ease-in-out infinite"></span>
+        <span style="position:absolute;bottom:0;left:7px;width:16px;height:16px;border-radius:50%;background:#ed8b00;animation:tpBob 3.4s ease-in-out infinite .6s"></span>
+        <span style="position:absolute;bottom:1px;right:2px;width:12px;height:12px;border-radius:50%;background:#da291c"></span>
+      </div>
+      <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:20px;letter-spacing:-.02em;white-space:nowrap;color:var(--tx,#f3f2ee)">Node Moodus</span>
+    </button>
+    <nav style="display:flex;align-items:center;gap:2px;overflow-x:auto;min-width:0">
+      <button onClick="{{ goHome }}" style="padding:8px 12px;border:none;background:transparent;border-radius:999px;color:var(--txs,#b8b3a8);font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap">Home</button>
+      <button onClick="{{ goReminders }}" style="padding:8px 12px;border:none;background:transparent;border-radius:999px;color:var(--txs,#b8b3a8);font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap">Reminders</button>
+      <button onClick="{{ navMood }}" style="padding:8px 12px;border:none;background:transparent;border-radius:999px;color:var(--txs,#b8b3a8);font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap">Mood</button>
+      <span style="display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;background:var(--tx,#f3f2ee);color:var(--bg,#0e0e12);font-weight:700;font-size:14px;white-space:nowrap">Shaw-rawt</span>
+      <button onClick="{{ navGames }}" style="padding:8px 12px;border:none;background:transparent;border-radius:999px;color:var(--txs,#b8b3a8);font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap">Games</button>
+    </nav>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button onClick="{{ toggleTheme }}" title="Toggle theme" style="width:38px;height:38px;flex:none;border:1px solid var(--bd,rgba(255,255,255,.08));border-radius:50%;background:var(--card,#191920);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .25s ease" style-hover="transform:rotate(20deg) scale(1.08)">{{ themeIcon }}</button>
+      <div style="display:flex;align-items:center;gap:9px;padding:5px 6px 5px 5px;border-radius:999px;background:var(--card,#191920);border:1px solid var(--bd,rgba(255,255,255,.08))">
+        <span style="width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:#fff;background: {{ avatarColor }}">{{ avatarDisplay }}</span>
+        <span style="font-weight:700;font-size:14px;max-width:84px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ nicknameLabel }}</span>
+        <button onClick="{{ switchUser }}" title="Not you? Switch" style="width:26px;height:26px;border:none;border-radius:50%;background:var(--trk,#26262e);color:var(--txm,#7c776e);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center">⇄</button>
+      </div>
+    </div>
+  </header>
+
+  <main style="position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:clamp(20px,4vw,40px) clamp(16px,4vw,40px) 64px">
+
+    <section style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:24px;animation:tpFadeUp .6s cubic-bezier(.2,.7,.3,1) both">
+      <div style="min-width:280px;flex:1">
+        <div style="font-weight:700;color:#ffcd00;font-size:14px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px">Give credit where it's due</div>
+        <h1 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:clamp(30px,5vw,46px);line-height:1.04;letter-spacing:-.025em">Shaw-rawt <span style="display:inline-block;transform-origin:60% 80%;animation:tpHand 3.2s ease-in-out 1s infinite">🙌</span></h1>
+        <p style="margin:10px 0 0;color:var(--txs,#b8b3a8);font-size:16px;max-width:50ch">Send a teammate some appreciation. Every shaw-rawt counts toward the monthly leaderboard — sign your name or stay anonymous.</p>
+      </div>
+      <div style="display:flex;gap:12px">
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:20px;background:var(--card,#191920);border:1px solid var(--bd,rgba(255,255,255,.08))">
+          <span style="width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:21px;background:rgba(255,205,0,.16)">🙌</span>
+          <div>
+            <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:24px;line-height:1">{{ totalThisMonth }}</div>
+            <div style="font-size:12px;color:var(--txs,#b8b3a8);font-weight:600">this month</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:20px;background:var(--card,#191920);border:1px solid var(--bd,rgba(255,255,255,.08))">
+          <span style="width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:21px;background:rgba(0,151,169,.16)">🔄</span>
+          <div>
+            <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:24px;line-height:1">{{ daysLeft }}d</div>
+            <div style="font-size:12px;color:var(--txs,#b8b3a8);font-weight:600">til reset</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start">
+
+      <div style="flex:1 1 340px;background:var(--card,#191920);border-radius:26px;border:1px solid var(--bd,rgba(255,255,255,.08));box-shadow:0 22px 46px -32px var(--shadow,rgba(0,0,0,.6));padding:24px;animation:tpFadeUp .6s cubic-bezier(.2,.7,.3,1) .08s both">
+        <h2 style="margin:0 0 16px;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:20px;letter-spacing:-.01em">Give a shaw-rawt</h2>
+
+        <label style="display:block;font-size:13px;font-weight:700;color:var(--txs,#b8b3a8);margin-bottom:7px">To</label>
+        <div style="position:relative;margin-bottom:16px">
+          <select value="{{ selectedTo }}" onChange="{{ onSelectTo }}" style="width:100%;appearance:none;-webkit-appearance:none;padding:13px 40px 13px 15px;border-radius:13px;border:1.5px solid var(--bd,rgba(255,255,255,.08));background:var(--bg,#0e0e12);color:var(--tx,#f3f2ee);font-size:15px;font-weight:600;outline:none;cursor:pointer">
+            <option value="">Choose a teammate…</option>
+            <sc-for list="{{ recipients }}" as="p" hint-placeholder-count="6">
+              <option value="{{ p.value }}">{{ p.label }}</option>
+            </sc-for>
+          </select>
+          <span style="position:absolute;right:15px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--txm,#7c776e);font-size:12px">▼</span>
+        </div>
+
+        <label style="display:block;font-size:13px;font-weight:700;color:var(--txs,#b8b3a8);margin-bottom:7px">For being a…</label>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">
+          <sc-for list="{{ badgeOptions }}" as="b" hint-placeholder-count="6">
+            <button onClick="{{ b.onSelect }}" style="display:flex;align-items:center;gap:6px;border:1.5px solid {{ b.border }};cursor:pointer;border-radius:12px;padding:8px 12px;font-weight:700;font-size:13px;background: {{ b.bg }};color: {{ b.color }};transition:all .18s ease"><span style="font-size:15px">{{ b.emoji }}</span> {{ b.label }}</button>
+          </sc-for>
+        </div>
+
+        <label style="display:block;font-size:13px;font-weight:700;color:var(--txs,#b8b3a8);margin-bottom:7px">Message</label>
+        <textarea value="{{ message }}" onChange="{{ onMessage }}" maxlength="180" rows="3" placeholder="Say what they did and why it mattered…" style="width:100%;resize:vertical;padding:13px 15px;border-radius:13px;border:1.5px solid var(--bd,rgba(255,255,255,.08));background:var(--bg,#0e0e12);color:var(--tx,#f3f2ee);font-size:14.5px;line-height:1.5;outline:none" style-focus="border-color:#ffcd00"></textarea>
+        <div style="text-align:right;font-size:12px;color:var(--txm,#7c776e);margin-top:4px">{{ msgLen }}/180</div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 0 18px;padding:13px 15px;border-radius:13px;background:var(--bg,#0e0e12);border:1px solid var(--bd,rgba(255,255,255,.08))">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:18px">🕶️</span>
+            <div>
+              <div style="font-weight:700;font-size:14px">Send anonymously</div>
+              <div style="font-size:12px;color:var(--txm,#7c776e)">Hide your name from {{ toLabelShort }}</div>
+            </div>
+          </div>
+          <button onClick="{{ toggleAnon }}" role="switch" style="flex:none;width:50px;height:28px;border-radius:999px;border:none;cursor:pointer;position:relative;background: {{ anonTrack }};transition:background .2s ease">
+            <span style="position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:transform .22s cubic-bezier(.2,.8,.3,1.3);transform: {{ anonKnob }}"></span>
+          </button>
+        </div>
+
+        <button onClick="{{ sendShawout }}" style="width:100%;padding:15px;border:none;border-radius:14px;background: {{ sendBg }};color: {{ sendColor }};font-weight:800;font-size:16px;cursor: {{ sendCursor }};opacity: {{ sendOpacity }};transition:transform .15s ease" style-hover="transform:translateY(-2px)">Send shaw-rawt 🙌</button>
+      </div>
+
+      <div style="flex:1.05 1 340px;background:var(--card,#191920);border-radius:26px;border:1px solid var(--bd,rgba(255,255,255,.08));box-shadow:0 22px 46px -32px var(--shadow,rgba(0,0,0,.6));padding:24px;animation:tpFadeUp .6s cubic-bezier(.2,.7,.3,1) .14s both">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px">
+          <h2 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:20px;letter-spacing:-.01em">🏆 Leaderboard</h2>
+          <div style="display:flex;align-items:center;gap:4px">
+            <button onClick="{{ prevMonth }}" style="width:30px;height:30px;border-radius:9px;border:1px solid var(--bd,rgba(255,255,255,.08));background:var(--bg,#0e0e12);color:var(--tx,#f3f2ee);cursor: {{ prevCursor }};opacity: {{ prevOpacity }};font-size:13px">◀</button>
+            <span style="font-weight:700;font-size:13.5px;min-width:118px;text-align:center">{{ monthLabel }}</span>
+            <button onClick="{{ nextMonth }}" style="width:30px;height:30px;border-radius:9px;border:1px solid var(--bd,rgba(255,255,255,.08));background:var(--bg,#0e0e12);color:var(--tx,#f3f2ee);cursor: {{ nextCursor }};opacity: {{ nextOpacity }};font-size:13px">▶</button>
+          </div>
+        </div>
+        <div style="margin-bottom:16px">
+          <span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:4px 11px;border-radius:999px;background: {{ statusBg }};color: {{ statusColor }}">{{ statusLabel }}</span>
+        </div>
+
+        <sc-if value="{{ hasBoard }}" hint-placeholder-val="{{ true }}">
+          <div>
+            <div style="display:flex;align-items:flex-end;justify-content:center;gap:10px;margin-bottom:18px">
+              <sc-for list="{{ podium }}" as="p" hint-placeholder-count="3">
+                <div style="flex:1;max-width:108px;display:flex;flex-direction:column;align-items:center">
+                  <div style="font-size:22px;margin-bottom:4px">{{ p.medal }}</div>
+                  <div style="width: {{ p.avatarSize }};height: {{ p.avatarSize }};border-radius:50%;display:flex;align-items:center;justify-content:center;font-size: {{ p.avatarFont }};color:#fff;border:3px solid {{ p.ring }};background: {{ p.color }}">{{ p.emoji }}</div>
+                  <div style="font-weight:800;font-size:13.5px;margin-top:6px;text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%">{{ p.name }}</div>
+                  <div style="font-size:12px;color:var(--txs,#b8b3a8);font-weight:700">{{ p.count }} 🙌</div>
+                  <div style="width:100%;margin-top:8px;height: {{ p.pedestal }};border-radius:10px 10px 0 0;background:linear-gradient(180deg, {{ p.color }}, {{ p.pedBottom }});display:flex;align-items:flex-start;justify-content:center;padding-top:6px;font-weight:800;color:#fff;font-size:14px">{{ p.rank }}</div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <sc-for list="{{ rest }}" as="r" hint-placeholder-count="4">
+                <div style="display:flex;align-items:center;gap:12px;padding:10px 13px;border-radius:13px;background:var(--bg,#0e0e12);border:1px solid var(--bd,rgba(255,255,255,.08))">
+                  <span style="font-weight:800;font-size:14px;color:var(--txm,#7c776e);width:22px;flex:none">{{ r.rank }}</span>
+                  <span style="width:34px;height:34px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;background: {{ r.color }}">{{ r.emoji }}</span>
+                  <span style="flex:1;font-weight:700;font-size:14.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.name }}</span>
+                  <div style="flex:1.2;height:8px;border-radius:999px;background:var(--trk,#26262e);overflow:hidden;max-width:120px">
+                    <div style="height:100%;border-radius:999px;width: {{ r.pct }}%;background: {{ r.color }};transition:width .6s cubic-bezier(.2,.7,.3,1)"></div>
+                  </div>
+                  <span style="font-weight:800;font-size:14px;width:26px;text-align:right;flex:none">{{ r.count }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ emptyBoard }}" hint-placeholder-val="{{ false }}">
+          <div style="text-align:center;padding:30px 16px;color:var(--txs,#b8b3a8)">
+            <div style="font-size:34px;margin-bottom:8px">🌱</div>
+            <div style="font-weight:700;font-size:15px">No shaw-rawts yet{{ emptyMonthSuffix }}</div>
+            <div style="font-size:13px;margin-top:3px">Be the first to send one!</div>
+          </div>
+        </sc-if>
+      </div>
+
+    </section>
+
+    <section style="margin-top:20px;background:var(--card,#191920);border-radius:26px;border:1px solid var(--bd,rgba(255,255,255,.08));box-shadow:0 22px 46px -32px var(--shadow,rgba(0,0,0,.6));padding:24px;animation:tpFadeUp .6s cubic-bezier(.2,.7,.3,1) .2s both">
+      <h2 style="margin:0 0 16px;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:20px;letter-spacing:-.01em">💬 Recent shaw-rawts <span style="color:var(--txm,#7c776e);font-weight:600;font-size:15px">· {{ monthLabel }}</span></h2>
+      <sc-if value="{{ hasFeed }}" hint-placeholder-val="{{ true }}">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">
+          <sc-for list="{{ feed }}" as="f" hint-placeholder-count="4">
+            <div style="position:relative;overflow:hidden;border-radius:18px;padding:16px;background:var(--bg,#0e0e12);border:1px solid var(--bd,rgba(255,255,255,.08))">
+              <div style="position:absolute;top:0;left:0;width:4px;height:100%;background: {{ f.badgeColor }}"></div>
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+                <span style="width:38px;height:38px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;background: {{ f.toColor }}">{{ f.toEmoji }}</span>
+                <div style="min-width:0">
+                  <div style="font-weight:800;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ f.toName }}</div>
+                  <div style="font-size:12px;color:var(--txm,#7c776e)">from {{ f.fromLabel }} · {{ f.timeAgo }}</div>
+                </div>
+                <span style="margin-left:auto;flex:none;display:flex;align-items:center;gap:4px;font-size:11px;font-weight:800;padding:4px 9px;border-radius:999px;color:#fff;background: {{ f.badgeColor }}">{{ f.badgeEmoji }} {{ f.badgeLabel }}</span>
+              </div>
+              <div style="font-size:14px;line-height:1.45;color:var(--tx,#f3f2ee)">{{ f.message }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{ emptyFeed }}" hint-placeholder-val="{{ false }}">
+        <div style="text-align:center;padding:24px;color:var(--txs,#b8b3a8);font-weight:600">Nothing here yet for {{ monthLabel }}.</div>
+      </sc-if>
+    </section>
+  </main>
+
+  <sc-if value="{{ toastShow }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;left:50%;bottom:26px;z-index:50;transform:translateX(-50%);background:var(--pnl,#20202a);color:var(--pnlt,#f3f2ee);padding:14px 22px;border-radius:999px;font-weight:700;font-size:14.5px;box-shadow:0 20px 40px -16px rgba(0,0,0,.6);border:1px solid var(--bd,rgba(255,255,255,.08));animation:tpToast .35s cubic-bezier(.2,.8,.3,1.2) both">{{ toastMsg }}</div>
+  </sc-if>
+
+  <div ref="{{ confettiRef }}" aria-hidden="true" style="position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden"></div>
+
+  <sc-if value="{{ showOnboarding }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(6,6,9,.62);backdrop-filter:blur(8px)">
+      <div style="position:relative;width:100%;max-width:430px;background:var(--card,#191920);color:var(--tx,#f3f2ee);border-radius:28px;padding:30px clamp(22px,5vw,34px);border:1px solid var(--bd,rgba(255,255,255,.08));box-shadow:0 40px 80px -30px rgba(0,0,0,.7);animation:tpPop .4s cubic-bezier(.2,.8,.3,1.2) both">
+        <div style="display:flex;gap:5px;margin-bottom:20px">
+          <span style="width:34px;height:34px;border-radius:50%;background:#86bc25;animation:tpBob 3s ease-in-out infinite"></span>
+          <span style="width:34px;height:34px;border-radius:50%;background:#0097a9;animation:tpBob 3s ease-in-out infinite .3s;margin-left:-8px"></span>
+          <span style="width:34px;height:34px;border-radius:50%;background:#ed8b00;animation:tpBob 3s ease-in-out infinite .6s;margin-left:-8px"></span>
+        </div>
+        <sc-if value="{{ stepName }}" hint-placeholder-val="{{ true }}">
+          <div>
+            <h2 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:26px;letter-spacing:-.02em">Welcome to Node Moodus 👋</h2>
+            <p style="margin:8px 0 18px;color:var(--txs,#b8b3a8);font-size:15px;line-height:1.45">What should the team call you? We'll remember you on this device — no passwords, ever.</p>
+            <input value="{{ onbName }}" onChange="{{ onOnbName }}" onKeyDown="{{ onOnbKey }}" placeholder="Your nickname…" autofocus style="width:100%;padding:15px 17px;border-radius:15px;border:1.5px solid var(--bd,rgba(255,255,255,.08));background:var(--bg,#0e0e12);color:var(--tx,#f3f2ee);font-size:16px;font-weight:600;outline:none" style-focus="border-color:#0097a9" />
+            <sc-if value="{{ onbError }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:9px;color:#da291c;font-size:13.5px;font-weight:600">{{ onbError }}</div>
+            </sc-if>
+            <button onClick="{{ onbSubmit }}" style="margin-top:16px;width:100%;padding:15px;border:none;border-radius:15px;background:var(--tx,#f3f2ee);color:var(--bg,#0e0e12);font-weight:800;font-size:16px;cursor:pointer;transition:transform .15s ease" style-hover="transform:translateY(-2px)">Let's go →</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{ stepConfirm }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <h2 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:24px;letter-spacing:-.02em">Wait — is this you?</h2>
+            <p style="margin:8px 0 18px;color:var(--txs,#b8b3a8);font-size:15px;line-height:1.45">Someone's already using that nickname on the team. If it's you on a new device, pick up right where you left off.</p>
+            <div style="display:flex;align-items:center;gap:13px;padding:15px;border-radius:16px;background:var(--trk,#26262e);margin-bottom:18px">
+              <span style="width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;background: {{ onbMatchColor }}">{{ onbMatchEmoji }}</span>
+              <div>
+                <div style="font-weight:800;font-size:17px">{{ onbMatchName }}</div>
+                <div style="color:var(--txs,#b8b3a8);font-size:13px">Existing Node Moodus member</div>
+              </div>
+            </div>
+            <button onClick="{{ confirmYes }}" style="width:100%;padding:14px;border:none;border-radius:15px;background:#86bc25;color:#fff;font-weight:800;font-size:15px;cursor:pointer;margin-bottom:9px">Yes, that's me — continue</button>
+            <button onClick="{{ confirmNo }}" style="width:100%;padding:14px;border:1.5px solid var(--bd,rgba(255,255,255,.08));border-radius:15px;background:var(--card,#191920);font-weight:700;font-size:15px;color:var(--txs,#b8b3a8);cursor:pointer">No, I'm someone new</button>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1180,&quot;height&quot;:1000}}">
+class Component extends DCLogic {
+  constructor(props){
+    super(props);
+    this.confettiRef = React.createRef();
+    this.rootRef = React.createRef();
+    this.PALETTE = ['#86bc25','#0097a9','#62b5e5','#da291c','#ed8b00','#009a44'];
+    this.EMOJIS = ['🦊','🐼','🐯','🦄','🐙','🐵','🦁','🐨','🐸','🐳','🦉','🐝'];
+    this.NAMES = ['Maya','Leo','Priya','Sam','Noah','Aria','Diego','Ivy','Kai','Zoe','Omar','Lena'];
+    this.BADGES = [
+      {key:'team',emoji:'🤝',label:'Team Player',color:'#86bc25'},
+      {key:'beyond',emoji:'🚀',label:'Above & Beyond',color:'#62b5e5'},
+      {key:'bug',emoji:'🐛',label:'Bug Slayer',color:'#da291c'},
+      {key:'idea',emoji:'💡',label:'Bright Idea',color:'#ed8b00'},
+      {key:'help',emoji:'🫶',label:'Helping Hand',color:'#0097a9'},
+      {key:'vibes',emoji:'🎉',label:'Good Vibes',color:'#009a44'}
+    ];
+    this.MESSAGES = [
+      "Saved my bacon on the release — thank you!",
+      "Always reviews my PRs within minutes. Legend.",
+      "Stayed calm and led us through the incident. 🙏",
+      "Made my onboarding so smooth and welcoming.",
+      "The best rubber-duck a dev could ask for.",
+      "Crushed the accessibility audit single-handedly.",
+      "Turned my messy Figma into clean components.",
+      "Stayed late to unblock the demo. Hero.",
+      "Patiently explained the build pipeline (again).",
+      "Spotted the memory leak nobody else could find.",
+      "Mentored me through my very first ship.",
+      "Brought the team coffee AND fixed CI."
+    ];
+    this.THEMES = {
+      dark: {'--bg':'#0e0e12','--card':'#191920','--bd':'rgba(255,255,255,.08)','--tx':'#f3f2ee','--txs':'#b8b3a8','--txm':'#7c776e','--trk':'#26262e','--hdr':'rgba(14,14,18,.72)','--pnl':'#20202a','--pnlt':'#f3f2ee','--pnls':'#9a958c','--shadow':'rgba(0,0,0,.6)'},
+      light:{'--bg':'#f5f4ef','--card':'#ffffff','--bd':'rgba(20,18,15,.08)','--tx':'#16130f','--txs':'#5c574e','--txm':'#a39e94','--trk':'#f0efe9','--hdr':'rgba(245,244,239,.72)','--pnl':'#16130f','--pnlt':'#ffffff','--pnls':'#b9b4a8','--shadow':'rgba(20,18,15,.45)'}
+    };
+    let theme='dark';
+    try{ const t=localStorage.getItem('tp_theme'); if(t==='light'||t==='dark') theme=t; }catch(e){}
+    const now=new Date();
+    this.state = {
+      now, theme,
+      nickname:null, avatarColor:'#0097a9', avatarEmoji:'🦊',
+      showOnboarding:false, onbStep:'name', onbName:'', onbMatch:null, onbError:'',
+      shawouts:[], selectedMonth:this.monthKey(now),
+      selectedTo:'', selectedBadge:'team', message:'', anon:false,
+      toast:null, toastShow:false
+    };
+  }
+
+  monthKey(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+  monthLabel(k){ const a=k.split('-'); return new Date(+a[0],+a[1]-1,1).toLocaleString('en-US',{month:'long',year:'numeric'}); }
+
+  applyTheme(theme){ const v=this.THEMES[theme]||this.THEMES.dark; const el=this.rootRef.current; if(!el) return; for(const k in v) el.style.setProperty(k,v[k]); }
+
+  componentDidMount(){
+    this.applyTheme(this.state.theme);
+    this.clock=setInterval(()=>this.setState({now:new Date()}),60000);
+    this.ensureSeedUsers();
+    const shawouts=this.ensureSeedShawouts();
+    this.setState({shawouts});
+    const nick=localStorage.getItem('tp_nickname');
+    if(nick){ const u=this.getUser(nick)||{nickname:nick,color:this.colorFor(nick),emoji:this.emojiFor(nick)}; this.applyUser(u,false); }
+    else { this.setState({showOnboarding:true}); }
+  }
+  componentDidUpdate(){ this.applyTheme(this.state.theme); }
+  componentWillUnmount(){ clearInterval(this.clock); clearTimeout(this._t); }
+
+  toggleTheme(){ const theme=this.state.theme==='dark'?'light':'dark'; try{localStorage.setItem('tp_theme',theme);}catch(e){} this.setState({theme}); }
+
+  readJSON(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } }
+  writeJSON(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+  hash(s){ let h=0; s=String(s); for(let i=0;i<s.length;i++){ h=(h*31+s.charCodeAt(i))|0; } return Math.abs(h); }
+  colorFor(s){ return this.PALETTE[this.hash(s)%this.PALETTE.length]; }
+  emojiFor(s){ return this.EMOJIS[this.hash(s)%this.EMOJIS.length]; }
+  ensureSeedUsers(){ if(!this.readJSON('tp_known_users')){ this.writeJSON('tp_known_users', this.NAMES.map(n=>({nickname:n,color:this.colorFor(n),emoji:this.emojiFor(n)}))); } }
+  getUsers(){ return this.readJSON('tp_known_users')||[]; }
+  getUser(n){ return this.getUsers().find(u=>u.nickname.toLowerCase()===String(n).toLowerCase()); }
+  addUser(u){ const a=this.getUsers(); if(!a.find(x=>x.nickname.toLowerCase()===u.nickname.toLowerCase())){ a.push(u); this.writeJSON('tp_known_users',a); } }
+  userMeta(nick){ const u=this.getUser(nick); return u?{color:u.color,emoji:u.emoji}:{color:this.colorFor(nick),emoji:this.emojiFor(nick)}; }
+
+  ensureSeedShawouts(){
+    let data=this.readJSON('tp_shawouts');
+    if(data && Array.isArray(data)) return data;
+    const now=this.state.now;
+    const cur=this.monthKey(now);
+    const m1=this.monthKey(new Date(now.getFullYear(),now.getMonth()-1,1));
+    const m2=this.monthKey(new Date(now.getFullYear(),now.getMonth()-2,1));
+    const plans={};
+    plans[m2]=[['Maya',6],['Leo',4],['Priya',3],['Aria',2],['Sam',2],['Noah',1]];
+    plans[m1]=[['Leo',7],['Ivy',5],['Priya',4],['Diego',3],['Zoe',2],['Kai',1]];
+    plans[cur]=[['Priya',4],['Aria',3],['Maya',2],['Sam',2],['Noah',1]];
+    const out=[]; let seq=0;
+    const rnd=(n)=>Math.floor(Math.random()*n);
+    for(const mk of [m2,m1,cur]){
+      const [y,mo]=mk.split('-').map(Number);
+      for(const [to,n] of plans[mk]){
+        for(let i=0;i<n;i++){
+          let from=this.NAMES[rnd(this.NAMES.length)]; let tries=0;
+          while(from===to && tries<5){ from=this.NAMES[rnd(this.NAMES.length)]; tries++; }
+          const anon=Math.random()<0.22;
+          const badge=this.BADGES[rnd(this.BADGES.length)].key;
+          const msg=this.MESSAGES[rnd(this.MESSAGES.length)];
+          const day=1+rnd(27), hr=9+rnd(9);
+          const ts=new Date(y,mo-1,day,hr,rnd(59)).getTime();
+          out.push({id:'seed'+(seq++),month:mk,to,from:anon?null:from,anon,badge,message:msg,ts});
+        }
+      }
+    }
+    out.sort((a,b)=>a.ts-b.ts);
+    this.writeJSON('tp_shawouts',out);
+    return out;
+  }
+
+  applyUser(u,isNew){
+    localStorage.setItem('tp_nickname',u.nickname);
+    if(isNew) this.addUser(u);
+    this.setState({ nickname:u.nickname, avatarColor:u.color, avatarEmoji:u.emoji, showOnboarding:false, onbStep:'name', onbName:'', onbMatch:null, onbError:'' });
+  }
+  onOnbName(e){ this.setState({onbName:e.target.value,onbError:''}); }
+  onOnbKey(e){ if(e.key==='Enter') this.onbSubmit(); }
+  onbSubmit(){ const name=(this.state.onbName||'').trim(); if(name.length<2){ this.setState({onbError:'Give us at least 2 characters 🙂'}); return; } const match=this.getUser(name); if(match){ this.setState({onbStep:'confirm',onbMatch:match}); } else { const u={nickname:name,color:this.colorFor(name),emoji:this.emojiFor(name)}; this.applyUser(u,true); this.celebrate("You're in, "+name+"! "+u.emoji); } }
+  confirmYes(){ const u=this.state.onbMatch; this.applyUser(u,true); this.celebrate('Welcome back, '+u.nickname+'! '+u.emoji); }
+  confirmNo(){ this.setState({onbStep:'name',onbName:'',onbMatch:null,onbError:"That name's taken — pick another?"}); }
+  switchUser(){ localStorage.removeItem('tp_nickname'); this.setState({showOnboarding:true,onbStep:'name',onbName:'',onbMatch:null,onbError:'',nickname:null}); }
+
+  onSelectTo(e){ this.setState({selectedTo:e.target.value}); }
+  selectBadge(k){ this.setState({selectedBadge:k}); }
+  onMessage(e){ this.setState({message:e.target.value}); }
+  toggleAnon(){ this.setState({anon:!this.state.anon}); }
+  sendShawout(){
+    const to=this.state.selectedTo; const msg=(this.state.message||'').trim();
+    if(!to || !msg) return;
+    const cur=this.monthKey(this.state.now);
+    const entry={id:'s'+Date.now(),month:cur,to,from:this.state.anon?null:this.state.nickname,anon:this.state.anon,badge:this.state.selectedBadge,message:msg,ts:Date.now()};
+    const shawouts=this.state.shawouts.concat([entry]);
+    this.setState({shawouts,message:'',selectedTo:'',anon:false,selectedMonth:cur});
+    this.writeJSON('tp_shawouts',shawouts);
+    this.fireConfetti();
+    this.celebrate('Shaw-rawt sent to '+to+'! 🙌');
+  }
+
+  monthsAvailable(){
+    const set={}; this.state.shawouts.forEach(s=>set[s.month]=true); set[this.monthKey(this.state.now)]=true;
+    return Object.keys(set).sort();
+  }
+  prevMonth(){ const m=this.monthsAvailable(); const i=m.indexOf(this.state.selectedMonth); if(i>0) this.setState({selectedMonth:m[i-1]}); }
+  nextMonth(){ const m=this.monthsAvailable(); const i=m.indexOf(this.state.selectedMonth); if(i<m.length-1) this.setState({selectedMonth:m[i+1]}); }
+
+  goHome(){ window.location.href='Home.dc.html'; }
+  goReminders(){ window.location.href='Noode-ifications.dc.html'; }
+  navMood(){ window.location.href='Mood.dc.html'; }
+  navGames(){ this.celebrate('Games are under construction 🚧 — back soon!'); }
+
+  celebrate(msg){ this.setState({toast:msg,toastShow:true}); clearTimeout(this._t); this._t=setTimeout(()=>this.setState({toastShow:false}),3000); }
+  fireConfetti(){ const layer=this.confettiRef.current; if(!layer) return; const colors=['#86bc25','#0097a9','#62b5e5','#da291c','#ed8b00','#ffcd00']; for(let i=0;i<40;i++){ const d=document.createElement('div'); const c=colors[i%colors.length]; const size=6+Math.random()*9; d.style.cssText='position:absolute;top:-14px;left:'+(Math.random()*100)+'%;width:'+size+'px;height:'+(size*0.55)+'px;background:'+c+';border-radius:2px'; layer.appendChild(d); const x=(Math.random()-0.5)*260,rot=Math.random()*900-450,dur=1500+Math.random()*1300; const a=d.animate([{transform:'translate(0,0) rotate(0)',opacity:1},{transform:'translate('+x+'px,'+(window.innerHeight+80)+'px) rotate('+rot+'deg)',opacity:.85}],{duration:dur,easing:'cubic-bezier(.2,.6,.3,1)'}); a.onfinish=()=>d.remove(); } }
+
+  timeAgo(ts){ const s=(Date.now()-ts)/1000; if(s<60) return 'just now'; if(s<3600) return Math.floor(s/60)+'m ago'; if(s<86400) return Math.floor(s/3600)+'h ago'; return Math.floor(s/86400)+'d ago'; }
+  badge(k){ return this.BADGES.find(b=>b.key===k)||this.BADGES[0]; }
+
+  renderVals(){
+    const s=this.state;
+    const isLight=s.theme==='light';
+    const cur=this.monthKey(s.now);
+    const sel=s.selectedMonth;
+    const isCurrent=sel===cur;
+
+    const monthEntries=s.shawouts.filter(x=>x.month===sel);
+    const counts={}; monthEntries.forEach(x=>{ counts[x.to]=(counts[x.to]||0)+1; });
+    const board=Object.keys(counts).map(nick=>{ const m=this.userMeta(nick); return {nick,count:counts[nick],color:m.color,emoji:m.emoji}; })
+      .sort((a,b)=> b.count-a.count || a.nick.localeCompare(b.nick));
+    const maxCount=board.length?board[0].count:1;
+
+    const medals=['🥇','🥈','🥉']; const golds=['#ffcd00','#c9c5bb','#cd7f32']; const goldBottoms=['#e0a800','#9a978f','#9c5f25']; const peds=['110px','86px','70px']; const avSizes=['62px','54px','50px']; const avFonts=['28px','24px','22px'];
+    const podiumRanked=board.slice(0,3).map((b,i)=>({...b, rank:i+1, medal:medals[i], color:b.color, ring:golds[i], pedBottom:goldBottoms[i], pedestal:peds[i], avatarSize:avSizes[i], avatarFont:avFonts[i], name:b.nick, delay:(0.1+i*0.12).toFixed(2)}));
+    const podium = podiumRanked.length===3 ? [podiumRanked[1],podiumRanked[0],podiumRanked[2]] : podiumRanked;
+    const rest=board.slice(3).map((b,i)=>({rank:i+4,name:b.nick,emoji:b.emoji,color:b.color,count:b.count,pct:Math.round(b.count/maxCount*100)}));
+
+    const feed=monthEntries.slice().sort((a,b)=>b.ts-a.ts).slice(0,9).map(x=>{ const tm=this.userMeta(x.to); const bd=this.badge(x.badge); return {
+      toName:x.to, toEmoji:tm.emoji, toColor:tm.color,
+      fromLabel:x.anon||!x.from?'Anonymous 🕶️':x.from,
+      badgeEmoji:bd.emoji, badgeLabel:bd.label, badgeColor:bd.color,
+      message:x.message, timeAgo:this.timeAgo(x.ts)
+    };});
+
+    const recipients=this.getUsers().map(u=>u.nickname).filter(n=>!s.nickname || n.toLowerCase()!==s.nickname.toLowerCase()).sort((a,b)=>a.localeCompare(b)).map(n=>{ const m=this.userMeta(n); return {value:n,label:m.emoji+'  '+n}; });
+
+    const badgeOptions=this.BADGES.map(b=>{ const on=s.selectedBadge===b.key; return {key:b.key,emoji:b.emoji,label:b.label,onSelect:()=>this.selectBadge(b.key), bg:on?b.color+'26':'transparent', border:on?b.color:'var(--bd)', color:on?'var(--tx)':'var(--txs)'}; });
+
+    const months=this.monthsAvailable(); const mi=months.indexOf(sel);
+    const canPrev=mi>0, canNext=mi<months.length-1;
+    const eom=new Date(s.now.getFullYear(),s.now.getMonth()+1,0); const daysLeft=Math.max(0,Math.ceil((eom-s.now)/86400000));
+    const canSend=!!s.selectedTo && (s.message||'').trim().length>0;
+    const toShort=s.selectedTo||'them';
+
+    return {
+      rootRef:this.rootRef,
+      themeIcon:isLight?'🌙':'☀️', toggleTheme:()=>this.toggleTheme(),
+      avatarColor:s.avatarColor, avatarDisplay:s.avatarEmoji, nicknameLabel:s.nickname||'Guest',
+      goHome:()=>this.goHome(), goReminders:()=>this.goReminders(), navMood:()=>this.navMood(), navGames:()=>this.navGames(), switchUser:()=>this.switchUser(),
+
+      totalThisMonth:s.shawouts.filter(x=>x.month===cur).length, daysLeft,
+
+      recipients, selectedTo:s.selectedTo, onSelectTo:(e)=>this.onSelectTo(e),
+      badgeOptions,
+      message:s.message, onMessage:(e)=>this.onMessage(e), msgLen:(s.message||'').length,
+      toLabelShort:toShort,
+      anonTrack:s.anon?'#86bc25':'var(--trk)', anonKnob:s.anon?'translateX(22px)':'translateX(0)', toggleAnon:()=>this.toggleAnon(),
+      sendShawout:()=>this.sendShawout(), sendBg:canSend?'var(--tx)':'var(--txm)', sendColor:'var(--bg)', sendCursor:canSend?'pointer':'not-allowed', sendOpacity:canSend?'1':'.7',
+
+      monthLabel:this.monthLabel(sel),
+      prevMonth:()=>this.prevMonth(), nextMonth:()=>this.nextMonth(),
+      prevCursor:canPrev?'pointer':'not-allowed', prevOpacity:canPrev?'1':'.35', nextCursor:canNext?'pointer':'not-allowed', nextOpacity:canNext?'1':'.35',
+      statusLabel:isCurrent?('Live · resets in '+daysLeft+'d'):'Final standings 📜', statusBg:isCurrent?'rgba(134,188,37,.16)':'var(--trk)', statusColor:isCurrent?'#86bc25':'var(--txs)',
+      hasBoard:board.length>0, emptyBoard:board.length===0, emptyMonthSuffix:isCurrent?' this month':'',
+      podium, rest,
+      hasFeed:feed.length>0, emptyFeed:feed.length===0, feed,
+
+      toastShow:s.toastShow, toastMsg:s.toast, confettiRef:this.confettiRef,
+      showOnboarding:s.showOnboarding, stepName:s.onbStep==='name', stepConfirm:s.onbStep==='confirm',
+      onbName:s.onbName, onbError:s.onbError, onOnbName:(e)=>this.onOnbName(e), onOnbKey:(e)=>this.onOnbKey(e), onbSubmit:()=>this.onbSubmit(),
+      onbMatchName:s.onbMatch?s.onbMatch.nickname:'', onbMatchEmoji:s.onbMatch?s.onbMatch.emoji:'🙂', onbMatchColor:s.onbMatch?s.onbMatch.color:'#0097a9',
+      confirmYes:()=>this.confirmYes(), confirmNo:()=>this.confirmNo()
+    };
+  }
+}
+</script>
+</body>
+</html>

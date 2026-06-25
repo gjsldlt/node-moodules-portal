@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:#0e0e12;color:#f3f2ee;font-family:'Hanken Grotesk',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+input{font-family:inherit}
+input::placeholder{color:var(--txm,#7c776e)}
+@keyframes tpFloat{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(34px,-26px) scale(1.06)}66%{transform:translate(-22px,20px) scale(.96)}}
+@keyframes tpFadeUp{from{transform:translateY(22px) scale(.985)}to{transform:translateY(0) scale(1)}}
+@keyframes tpPop{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+@keyframes tpBell{0%,50%,100%{transform:rotate(0)}10%,30%{transform:rotate(14deg)}20%,40%{transform:rotate(-12deg)}}
+@keyframes tpPulse{0%{transform:scale(.7);opacity:.7}70%,100%{transform:scale(2.4);opacity:0}}
+@keyframes tpToast{from{opacity:0;transform:translate(-50%,24px)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes tpSheen{0%{transform:translateX(-120%)}60%,100%{transform:translateX(220%)}}
+@keyframes tpBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes tpCheck{0%{transform:scale(0) rotate(-25deg)}60%{transform:scale(1.25) rotate(5deg)}100%{transform:scale(1) rotate(0)}}
+</style>
+</helmet>
+<div ref="{{ rootRef }}" data-screen-label="Noode-ifications" style="position:relative;min-height:100vh;overflow:hidden;background:var(--bg,#0e0e12);color:var(--tx,#f3f2ee);transition:background .4s ease,color .4s ease">
+
+  <div aria-hidden="true" style="position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden">
+    <div style="position:absolute;top:-120px;left:-80px;width:440px;height:440px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#ed8b00,rgba(237,139,0,0));opacity:.34;animation:tpFloat 19s ease-in-out infinite"></div>
+    <div style="position:absolute;top:120px;right:-140px;width:480px;height:480px;border-radius:50%;background:radial-gradient(circle at 50% 50%,#62b5e5,rgba(98,181,229,0));opacity:.36;animation:tpFloat 23s ease-in-out infinite reverse"></div>
+    <div style="position:absolute;bottom:-160px;left:34%;width:460px;height:460px;border-radius:50%;background:radial-gradient(circle at 50% 50%,#86bc25,rgba(134,188,37,0));opacity:.3;animation:tpFloat 27s ease-in-out infinite"></div>
+  </div>
+
+  <header style="position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px clamp(16px,4vw,40px);background:var(--hdr,rgba(14,14,18,.72));backdrop-filter:blur(14px);border-bottom:1px solid var(--bd,rgba(255,255,255,.08))">
+    <button onClick="{{ goHome }}" style="display:flex;align-items:center;gap:12px;border:none;background:transparent;cursor:pointer;padding:0">
+      <div style="position:relative;width:38px;height:38px;flex:none">
+        <span style="position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#86bc25"></span>
+        <span style="position:absolute;top:0;right:0;width:15px;height:15px;border-radius:50%;background:#0097a9;animation:tpBob 3.4s ease-in-out infinite"></span>
+        <span style="position:absolute;bottom:0;left:7px;width:16px;height:16px;border-radius:50%;background:#ed8b00;animation:tpBob 3.4s ease-in-out infinite .6s"></span>
+        <span style="position:absolute;bottom:1px;right:2px;width:12px;height:12px;border-radius:50%;background:#da291c"></span>
+      </div>
+      <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:20px;letter-spacing:-.02em;white-space:nowrap;color:var(--tx,#f3f2ee)">Node Moodus</span>
+    </button>
+    <nav style="display:flex;align-items:center;gap:2px;overflow-x:auto;min-width:0">
+      <button onClick="{{ goHome }}" style="padding:8px 12px;border:none;background:transparent;border-radius:999px;color:var(--txs,#b8b3a8);font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap">Home</button>
+      <span style="display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;background:var(--tx,#f3f2ee);color:var(--bg,#0e0e12);font-weight:700;font-size:14px;white-space:nowrap">Reminders</span>
+      <button onClick="{{ navMood }}" style="padding:8px 12px;border:none;background:transparent;border-radius:999px;color:var(--txs,#b8b3a8);font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap">Mood</button>
+      <button onClick="{{ navShaw }}" style="padding:8px 12px;border:none;background:transparent;border-radius:999px;color:var(--txs,#b8b3a8);font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap">Shaw-rawt</button>
+      <button onClick="{{ navGames }}" style="padding:8px 12px;border:none;background:transparent;border-radius:999px;color:var(--txs,#b8b3a8);font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap">Games</button>
+    </nav>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button onClick="{{ toggleTheme }}" title="Toggle theme" style="width:38px;height:38px;flex:none;border:1px solid var(--bd,rgba(255,255,255,.08));border-radius:50%;background:var(--card,#191920);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .25s ease" style-hover="transform:rotate(20deg) scale(1.08)">{{ themeIcon }}</button>
+      <div style="display:flex;align-items:center;gap:9px;padding:5px 6px 5px 5px;border-radius:999px;background:var(--card,#191920);border:1px solid var(--bd,rgba(255,255,255,.08))">
+        <span style="width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:#fff;background: {{ avatarColor }}">{{ avatarDisplay }}</span>
+        <span style="font-weight:700;font-size:14px;max-width:84px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ nicknameLabel }}</span>
+        <button onClick="{{ switchUser }}" title="Not you? Switch" style="width:26px;height:26px;border:none;border-radius:50%;background:var(--trk,#26262e);color:var(--txm,#7c776e);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center">⇄</button>
+      </div>
+    </div>
+  </header>
+
+  <main style="position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:clamp(20px,4vw,40px) clamp(16px,4vw,40px) 64px">
+
+    <section style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:22px;animation:tpFadeUp .6s cubic-bezier(.2,.7,.3,1) both">
+      <div style="min-width:280px;flex:1">
+        <div style="font-weight:700;color:#ed8b00;font-size:14px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px">Stay in the loop</div>
+        <h1 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:clamp(30px,5vw,46px);line-height:1.04;letter-spacing:-.025em">Noode-ifications <span style="display:inline-block;transform-origin:50% 10%;animation:tpBell 3s ease-in-out 1s infinite">🔔</span></h1>
+        <p style="margin:10px 0 0;color:var(--txs,#b8b3a8);font-size:16px;max-width:48ch">Team news, nudges and to-dos in one place. Tick things off — it all saves to your nickname.</p>
+      </div>
+      <div style="display:flex;gap:12px">
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:20px;background:var(--card,#191920);border:1px solid var(--bd,rgba(255,255,255,.08))">
+          <span style="width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:21px;background:rgba(98,181,229,.16)">📣</span>
+          <div>
+            <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:24px;line-height:1">{{ unreadCount }}</div>
+            <div style="font-size:12px;color:var(--txs,#b8b3a8);font-weight:600">new</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:20px;background:var(--card,#191920);border:1px solid var(--bd,rgba(255,255,255,.08))">
+          <div style="width:44px;height:44px;border-radius:50%;flex:none;background:conic-gradient(#86bc25 {{ remPct }}%, var(--trk,#26262e) 0);display:flex;align-items:center;justify-content:center">
+            <div style="width:32px;height:32px;border-radius:50%;background:var(--card,#191920);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">{{ remDone }}/{{ remTotal }}</div>
+          </div>
+          <div>
+            <div style="font-size:12px;color:var(--txs,#b8b3a8);font-weight:600">reminders</div>
+            <div style="font-weight:800;font-size:14px">{{ remLabel }}</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div style="display:flex;gap:6px;padding:5px;border-radius:16px;background:var(--card,#191920);border:1px solid var(--bd,rgba(255,255,255,.08));width:max-content;max-width:100%;margin-bottom:22px;animation:tpFadeUp .6s cubic-bezier(.2,.7,.3,1) .05s both">
+      <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="3">
+        <button onClick="{{ t.onClick }}" style="border:none;cursor:pointer;border-radius:12px;padding:9px 18px;font-weight:700;font-size:14px;background: {{ t.bg }};color: {{ t.color }};transition:background .2s ease,color .2s ease">{{ t.label }}</button>
+      </sc-for>
+    </div>
+
+    <section style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start">
+
+      <sc-if value="{{ showAnn }}" hint-placeholder-val="{{ true }}">
+        <div style="flex:1.5 1 360px;background:var(--card,#191920);border-radius:26px;border:1px solid var(--bd,rgba(255,255,255,.08));box-shadow:0 22px 46px -32px var(--shadow,rgba(0,0,0,.6));padding:24px;animation:tpFadeUp .6s cubic-bezier(.2,.7,.3,1) .08s both">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px">
+            <h2 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:20px;letter-spacing:-.01em">📣 Announcements</h2>
+            <sc-if value="{{ hasUnread }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ markAllRead }}" style="border:none;background:var(--trk,#26262e);border-radius:999px;padding:7px 14px;font-weight:700;font-size:13px;color:var(--txs,#b8b3a8);cursor:pointer">Mark all read</button>
+            </sc-if>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px">
+            <sc-for list="{{ tagChips }}" as="c" hint-placeholder-count="5">
+              <button onClick="{{ c.onClick }}" style="border:1px solid {{ c.border }};cursor:pointer;border-radius:999px;padding:5px 13px;font-weight:700;font-size:12.5px;background: {{ c.bg }};color: {{ c.color }};transition:all .2s ease">{{ c.label }}</button>
+            </sc-for>
+          </div>
+
+          <div style="position:relative;overflow:hidden;border-radius:20px;padding:20px;color:#fff;background: {{ featuredAccent }};margin-bottom:14px">
+            <div aria-hidden="true" style="position:absolute;top:0;left:0;width:60%;height:100%;background:linear-gradient(100deg,rgba(255,255,255,0),rgba(255,255,255,.28),rgba(255,255,255,0));animation:tpSheen 6s ease-in-out 1s infinite"></div>
+            <div style="position:relative">
+              <div style="display:flex;align-items:center;gap:8px">
+                <span style="display:inline-block;background:rgba(255,255,255,.22);padding:4px 11px;border-radius:999px;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase">📌 Pinned · {{ featuredTag }}</span>
+              </div>
+              <div style="display:flex;gap:12px;align-items:flex-start;margin-top:12px">
+                <span style="font-size:30px;line-height:1">{{ featuredEmoji }}</span>
+                <div>
+                  <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:21px;line-height:1.15">{{ featuredTitle }}</div>
+                  <div style="margin-top:6px;font-size:14px;opacity:.92;line-height:1.45">{{ featuredBody }}</div>
+                  <div style="margin-top:10px;font-size:12px;font-weight:700;opacity:.85">{{ featuredTime }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:11px">
+            <sc-for list="{{ annList }}" as="a" hint-placeholder-count="4">
+              <div style="border:1px solid var(--bd,rgba(255,255,255,.08));border-radius:18px;padding:15px;background: {{ a.cardBg }};transition:background .25s ease;opacity: {{ a.opacity }}">
+                <div style="display:flex;gap:13px;align-items:flex-start">
+                  <span style="width:42px;height:42px;flex:none;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:20px;background: {{ a.tint }}">{{ a.emoji }}</span>
+                  <div style="flex:1;min-width:0">
+                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                      <span style="font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:3px 9px;border-radius:999px;color:#fff;background: {{ a.tagColor }}">{{ a.tag }}</span>
+                      <sc-if value="{{ a.unread }}" hint-placeholder-val="{{ false }}">
+                        <span style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:800;color:#da291c"><span style="width:7px;height:7px;border-radius:50%;background:#da291c"></span>NEW</span>
+                      </sc-if>
+                      <span style="margin-left:auto;color:var(--txm,#7c776e);font-size:12px;font-weight:600">{{ a.time }}</span>
+                    </div>
+                    <div style="font-weight:700;font-size:15.5px;line-height:1.25;margin-top:7px">{{ a.title }}</div>
+                    <div style="color:var(--txs,#b8b3a8);font-size:13.5px;margin-top:3px;line-height:1.45">{{ a.body }}</div>
+                    <div style="display:flex;align-items:center;gap:7px;margin-top:11px;flex-wrap:wrap">
+                      <sc-for list="{{ a.reactions }}" as="r" hint-placeholder-count="3">
+                        <button onClick="{{ r.onClick }}" style="display:flex;align-items:center;gap:5px;border:1px solid {{ r.border }};cursor:pointer;border-radius:999px;padding:4px 11px;font-size:13px;font-weight:700;background: {{ r.bg }};color: {{ r.color }};transition:all .15s ease" style-hover="transform:translateY(-1px)"><span>{{ r.emoji }}</span> {{ r.count }}</button>
+                      </sc-for>
+                      <button onClick="{{ a.onRead }}" style="margin-left:auto;border:none;cursor:pointer;border-radius:999px;padding:6px 13px;font-size:12.5px;font-weight:700;background: {{ a.readBg }};color: {{ a.readColor }};transition:all .2s ease">{{ a.readLabel }}</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ showRem }}" hint-placeholder-val="{{ true }}">
+        <div style="flex:1 1 320px;background:var(--card,#191920);border-radius:26px;border:1px solid var(--bd,rgba(255,255,255,.08));box-shadow:0 22px 46px -32px var(--shadow,rgba(0,0,0,.6));padding:24px;animation:tpFadeUp .6s cubic-bezier(.2,.7,.3,1) .14s both">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <h2 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:20px;letter-spacing:-.01em">✅ Reminders</h2>
+            <span style="font-weight:800;font-size:14px;color:#86bc25">{{ remDone }}/{{ remTotal }} done</span>
+          </div>
+
+          <div style="display:flex;gap:8px;margin-bottom:16px">
+            <input value="{{ newRem }}" onChange="{{ onNewRem }}" onKeyDown="{{ onNewRemKey }}" placeholder="Add a reminder…" style="flex:1;min-width:0;padding:12px 15px;border-radius:13px;border:1.5px solid var(--bd,rgba(255,255,255,.08));background:var(--bg,#0e0e12);color:var(--tx,#f3f2ee);font-size:14px;outline:none" style-focus="border-color:#ed8b00" />
+            <button onClick="{{ addRem }}" style="flex:none;border:none;cursor:pointer;border-radius:13px;padding:0 18px;background:var(--tx,#f3f2ee);color:var(--bg,#0e0e12);font-weight:800;font-size:14px;transition:transform .15s ease" style-hover="transform:translateY(-2px)">Add</button>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:9px">
+            <sc-for list="{{ reminders }}" as="r" hint-placeholder-count="5">
+              <button onClick="{{ r.onToggle }}" style="display:flex;align-items:center;gap:13px;width:100%;text-align:left;cursor:pointer;border:1px solid var(--bd,rgba(255,255,255,.08));background: {{ r.cardBg }};border-radius:15px;padding:13px 15px;transition:background .2s ease,transform .12s ease" style-hover="transform:translateX(3px)">
+                <span style="width:24px;height:24px;flex:none;border-radius:8px;border:2px solid {{ r.accent }};background: {{ r.checkBg }};display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:900;transition:all .2s ease"><span style="display:inline-block;animation: {{ r.checkAnim }}">{{ r.check }}</span></span>
+                <span style="flex:1;font-size:15px;font-weight:600;color: {{ r.textColor }};text-decoration: {{ r.strike }}">{{ r.text }}</span>
+                <sc-if value="{{ r.custom }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-size:11px;font-weight:700;color:var(--txm,#7c776e);padding:2px 8px;border-radius:999px;background:var(--trk,#26262e)">yours</span>
+                </sc-if>
+              </button>
+            </sc-for>
+          </div>
+
+          <sc-if value="{{ allDone }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:14px;text-align:center;padding:16px;border-radius:16px;background:rgba(134,188,37,.14);animation:tpPop .45s cubic-bezier(.2,.8,.3,1.3) both">
+              <div style="font-size:30px">🎉</div>
+              <div style="font-weight:800;font-size:15px;margin-top:4px">Inbox zero! Nothing left to do.</div>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+    </section>
+  </main>
+
+  <sc-if value="{{ toastShow }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;left:50%;bottom:26px;z-index:50;transform:translateX(-50%);background:var(--pnl,#20202a);color:var(--pnlt,#f3f2ee);padding:14px 22px;border-radius:999px;font-weight:700;font-size:14.5px;box-shadow:0 20px 40px -16px rgba(0,0,0,.6);border:1px solid var(--bd,rgba(255,255,255,.08));animation:tpToast .35s cubic-bezier(.2,.8,.3,1.2) both">{{ toastMsg }}</div>
+  </sc-if>
+
+  <div ref="{{ confettiRef }}" aria-hidden="true" style="position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden"></div>
+
+  <sc-if value="{{ showOnboarding }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(6,6,9,.62);backdrop-filter:blur(8px)">
+      <div style="position:relative;width:100%;max-width:430px;background:var(--card,#191920);color:var(--tx,#f3f2ee);border-radius:28px;padding:30px clamp(22px,5vw,34px);border:1px solid var(--bd,rgba(255,255,255,.08));box-shadow:0 40px 80px -30px rgba(0,0,0,.7);animation:tpPop .4s cubic-bezier(.2,.8,.3,1.2) both">
+        <div style="display:flex;gap:5px;margin-bottom:20px">
+          <span style="width:34px;height:34px;border-radius:50%;background:#86bc25;animation:tpBob 3s ease-in-out infinite"></span>
+          <span style="width:34px;height:34px;border-radius:50%;background:#0097a9;animation:tpBob 3s ease-in-out infinite .3s;margin-left:-8px"></span>
+          <span style="width:34px;height:34px;border-radius:50%;background:#ed8b00;animation:tpBob 3s ease-in-out infinite .6s;margin-left:-8px"></span>
+        </div>
+        <sc-if value="{{ stepName }}" hint-placeholder-val="{{ true }}">
+          <div>
+            <h2 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:26px;letter-spacing:-.02em">Welcome to Node Moodus 👋</h2>
+            <p style="margin:8px 0 18px;color:var(--txs,#b8b3a8);font-size:15px;line-height:1.45">What should the team call you? We'll remember you on this device — no passwords, ever.</p>
+            <input value="{{ onbName }}" onChange="{{ onOnbName }}" onKeyDown="{{ onOnbKey }}" placeholder="Your nickname…" autofocus style="width:100%;padding:15px 17px;border-radius:15px;border:1.5px solid var(--bd,rgba(255,255,255,.08));background:var(--bg,#0e0e12);color:var(--tx,#f3f2ee);font-size:16px;font-weight:600;outline:none" style-focus="border-color:#0097a9" />
+            <sc-if value="{{ onbError }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:9px;color:#da291c;font-size:13.5px;font-weight:600">{{ onbError }}</div>
+            </sc-if>
+            <button onClick="{{ onbSubmit }}" style="margin-top:16px;width:100%;padding:15px;border:none;border-radius:15px;background:var(--tx,#f3f2ee);color:var(--bg,#0e0e12);font-weight:800;font-size:16px;cursor:pointer;transition:transform .15s ease" style-hover="transform:translateY(-2px)">Let's go →</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{ stepConfirm }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <h2 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:24px;letter-spacing:-.02em">Wait — is this you?</h2>
+            <p style="margin:8px 0 18px;color:var(--txs,#b8b3a8);font-size:15px;line-height:1.45">Someone's already using that nickname on the team. If it's you on a new device, pick up right where you left off.</p>
+            <div style="display:flex;align-items:center;gap:13px;padding:15px;border-radius:16px;background:var(--trk,#26262e);margin-bottom:18px">
+              <span style="width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;background: {{ onbMatchColor }}">{{ onbMatchEmoji }}</span>
+              <div>
+                <div style="font-weight:800;font-size:17px">{{ onbMatchName }}</div>
+                <div style="color:var(--txs,#b8b3a8);font-size:13px">Existing Node Moodus member</div>
+              </div>
+            </div>
+            <button onClick="{{ confirmYes }}" style="width:100%;padding:14px;border:none;border-radius:15px;background:#86bc25;color:#fff;font-weight:800;font-size:15px;cursor:pointer;margin-bottom:9px">Yes, that's me — continue</button>
+            <button onClick="{{ confirmNo }}" style="width:100%;padding:14px;border:1.5px solid var(--bd,rgba(255,255,255,.08));border-radius:15px;background:var(--card,#191920);font-weight:700;font-size:15px;color:var(--txs,#b8b3a8);cursor:pointer">No, I'm someone new</button>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1180,&quot;height&quot;:960}}">
+class Component extends DCLogic {
+  constructor(props){
+    super(props);
+    this.confettiRef = React.createRef();
+    this.rootRef = React.createRef();
+    this.PALETTE = ['#86bc25','#0097a9','#62b5e5','#da291c','#ed8b00','#009a44'];
+    this.EMOJIS = ['🦊','🐼','🐯','🦄','🐙','🐵','🦁','🐨','🐸','🐳','🦉','🐝'];
+    this.REACTS = ['👍','🎉','❤️'];
+    this.TAGS = {
+      Release:{color:'#62b5e5',dark:'#1e3a4d',light:'#e9f5fd'},
+      People:{color:'#86bc25',dark:'#2c3a18',light:'#eef6e0'},
+      Ops:{color:'#ed8b00',dark:'#43330f',light:'#fdefd9'},
+      Schedule:{color:'#0097a9',dark:'#173a3f',light:'#ddefe8'},
+      Win:{color:'#da291c',dark:'#451a18',light:'#fbe2e0'}
+    };
+    this.ANN = [
+      {id:'a1',emoji:'🚀',tag:'Release',title:'We shipped v2.0 of the design system',body:'120+ components, motion tokens, and dark mode. Huge thanks to the platform crew.',time:'2h ago',reacts:{'👍':12,'🎉':8,'❤️':5},pinned:true},
+      {id:'a2',emoji:'👋',tag:'People',title:'Say hi to Priya — joining Monday',body:'New mobile engineer on the payments squad. Drop a welcome in the team channel.',time:'Yesterday',reacts:{'👍':9,'🎉':14,'❤️':6}},
+      {id:'a3',emoji:'🏆',tag:'Win',title:'Shoutout: Leo squashed the scroll-jank bug',body:'That nasty 60→24fps drop on long lists is finally gone. Buttery scrolling everywhere.',time:'2d ago',reacts:{'👍':21,'🎉':11,'❤️':9}},
+      {id:'a4',emoji:'🛠️',tag:'Ops',title:'Wi-Fi maintenance Thursday 6–7pm',body:'Expect a short drop. Save your work and grab a coffee.',time:'2d ago',reacts:{'👍':3,'🎉':0,'❤️':0}},
+      {id:'a5',emoji:'⏰',tag:'Schedule',title:'Weekly catch-up moved to 10:30am',body:'Same room, new time — calendar invites are updated.',time:'3d ago',reacts:{'👍':6,'🎉':1,'❤️':0}},
+      {id:'a6',emoji:'📱',tag:'Release',title:'iOS app hits 4.8★ on the App Store',body:'Reviews are loving the new onboarding flow. Screenshot in the channel.',time:'5d ago',reacts:{'👍':18,'🎉':22,'❤️':15}},
+      {id:'a7',emoji:'☕',tag:'Ops',title:'New espresso machine in the 3rd-floor kitchen',body:'Bean refills are in the cupboard. Please descale on Fridays.',time:'1w ago',reacts:{'👍':10,'🎉':4,'❤️':7}}
+    ];
+    this.THEMES = {
+      dark: {'--bg':'#0e0e12','--card':'#191920','--bd':'rgba(255,255,255,.08)','--tx':'#f3f2ee','--txs':'#b8b3a8','--txm':'#7c776e','--trk':'#26262e','--hdr':'rgba(14,14,18,.72)','--pnl':'#20202a','--pnlt':'#f3f2ee','--pnls':'#9a958c','--shadow':'rgba(0,0,0,.6)'},
+      light:{'--bg':'#f5f4ef','--card':'#ffffff','--bd':'rgba(20,18,15,.08)','--tx':'#16130f','--txs':'#5c574e','--txm':'#a39e94','--trk':'#f0efe9','--hdr':'rgba(245,244,239,.72)','--pnl':'#16130f','--pnlt':'#ffffff','--pnls':'#b9b4a8','--shadow':'rgba(20,18,15,.45)'}
+    };
+    let theme='dark';
+    try{ const t=localStorage.getItem('tp_theme'); if(t==='light'||t==='dark') theme=t; }catch(e){}
+    this.state = {
+      now:new Date(), theme,
+      nickname:null, avatarColor:'#0097a9', avatarEmoji:'🦊',
+      showOnboarding:false, onbStep:'name', onbName:'', onbMatch:null, onbError:'',
+      filter:'all', annTag:'all',
+      reminders: this.seedReminders(),
+      newRem:'',
+      reacts:{}, read:{},
+      toast:null, toastShow:false
+    };
+  }
+
+  seedReminders(){
+    return [
+      {id:'r1',text:'Submit sprint retro notes',accent:'#da291c',done:false},
+      {id:'r2',text:'RSVP to Friday demo lunch',accent:'#ed8b00',done:false},
+      {id:'r3',text:'Update your avatar in the design file',accent:'#0097a9',done:false},
+      {id:'r4',text:'Review PR #482 — animation polish',accent:'#62b5e5',done:false},
+      {id:'r5',text:'Add a topic for the weekly catch-up',accent:'#86bc25',done:false}
+    ];
+  }
+
+  applyTheme(theme){ const v=this.THEMES[theme]||this.THEMES.dark; const el=this.rootRef.current; if(!el) return; for(const k in v) el.style.setProperty(k,v[k]); }
+
+  componentDidMount(){
+    this.applyTheme(this.state.theme);
+    this.clock=setInterval(()=>this.setState({now:new Date()}),60000);
+    this.ensureSeedUsers();
+    const nick=localStorage.getItem('tp_nickname');
+    if(nick){ const u=this.getUser(nick)||{nickname:nick,color:this.colorFor(nick),emoji:this.emojiFor(nick)}; this.applyUser(u,false); }
+    else { this.setState({showOnboarding:true}); }
+  }
+  componentDidUpdate(){ this.applyTheme(this.state.theme); }
+  componentWillUnmount(){ clearInterval(this.clock); clearTimeout(this._t); }
+
+  toggleTheme(){ const theme=this.state.theme==='dark'?'light':'dark'; try{localStorage.setItem('tp_theme',theme);}catch(e){} this.setState({theme}); }
+
+  readJSON(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } }
+  writeJSON(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+  hash(s){ let h=0; s=String(s); for(let i=0;i<s.length;i++){ h=(h*31+s.charCodeAt(i))|0; } return Math.abs(h); }
+  colorFor(s){ return this.PALETTE[this.hash(s)%this.PALETTE.length]; }
+  emojiFor(s){ return this.EMOJIS[this.hash(s)%this.EMOJIS.length]; }
+  ensureSeedUsers(){ if(!this.readJSON('tp_known_users')){ const names=['Maya','Leo','Priya','Sam','Noah','Aria','Diego','Ivy','Kai','Zoe','Omar','Lena']; this.writeJSON('tp_known_users', names.map(n=>({nickname:n,color:this.colorFor(n),emoji:this.emojiFor(n)}))); } }
+  getUsers(){ return this.readJSON('tp_known_users')||[]; }
+  getUser(n){ return this.getUsers().find(u=>u.nickname.toLowerCase()===String(n).toLowerCase()); }
+  addUser(u){ const a=this.getUsers(); if(!a.find(x=>x.nickname.toLowerCase()===u.nickname.toLowerCase())){ a.push(u); this.writeJSON('tp_known_users',a); } }
+
+  loadReminders(nick){
+    const key=nick.toLowerCase();
+    const saved=this.readJSON('tp_rem_'+key);
+    const custom=this.readJSON('tp_rem_custom_'+key)||[];
+    const base=this.seedReminders().concat(custom.map(c=>({...c,done:false})));
+    if(saved){ return base.map(r=>({...r,done:!!saved[r.id]})); }
+    return base;
+  }
+  persistReminders(reminders){
+    if(!this.state.nickname) return;
+    const key=this.state.nickname.toLowerCase();
+    const map={}; reminders.forEach(r=>map[r.id]=r.done); this.writeJSON('tp_rem_'+key,map);
+    const custom=reminders.filter(r=>r.custom).map(r=>({id:r.id,text:r.text,accent:r.accent,custom:true}));
+    this.writeJSON('tp_rem_custom_'+key,custom);
+  }
+
+  applyUser(u,isNew){
+    localStorage.setItem('tp_nickname',u.nickname);
+    if(isNew) this.addUser(u);
+    const key=u.nickname.toLowerCase();
+    this.setState({
+      nickname:u.nickname, avatarColor:u.color, avatarEmoji:u.emoji,
+      showOnboarding:false, onbStep:'name', onbName:'', onbMatch:null, onbError:'',
+      reminders:this.loadReminders(u.nickname),
+      reacts:this.readJSON('tp_reacts_'+key)||{},
+      read:this.readJSON('tp_read_'+key)||{}
+    });
+  }
+
+  onOnbName(e){ this.setState({onbName:e.target.value,onbError:''}); }
+  onOnbKey(e){ if(e.key==='Enter') this.onbSubmit(); }
+  onbSubmit(){ const name=(this.state.onbName||'').trim(); if(name.length<2){ this.setState({onbError:'Give us at least 2 characters 🙂'}); return; } const match=this.getUser(name); if(match){ this.setState({onbStep:'confirm',onbMatch:match}); } else { const u={nickname:name,color:this.colorFor(name),emoji:this.emojiFor(name)}; this.applyUser(u,true); this.celebrate("You're in, "+name+"! "+u.emoji); } }
+  confirmYes(){ const u=this.state.onbMatch; this.applyUser(u,true); this.celebrate('Welcome back, '+u.nickname+'! '+u.emoji); }
+  confirmNo(){ this.setState({onbStep:'name',onbName:'',onbMatch:null,onbError:"That name's taken — pick another?"}); }
+  switchUser(){ localStorage.removeItem('tp_nickname'); this.setState({showOnboarding:true,onbStep:'name',onbName:'',onbMatch:null,onbError:'',nickname:null}); }
+
+  setFilter(f){ this.setState({filter:f}); }
+  setTag(t){ this.setState({annTag:t}); }
+
+  toggleReminder(id){
+    const before=this.state.reminders.length>0 && this.state.reminders.every(r=>r.done);
+    const reminders=this.state.reminders.map(r=>r.id===id?{...r,done:!r.done}:r);
+    this.setState({reminders}); this.persistReminders(reminders);
+    const after=reminders.length>0 && reminders.every(r=>r.done);
+    if(after && !before){ this.fireConfetti(); this.celebrate('All done — inbox zero! 🎉'); }
+  }
+  onNewRem(e){ this.setState({newRem:e.target.value}); }
+  onNewRemKey(e){ if(e.key==='Enter') this.addRem(); }
+  addRem(){ const text=(this.state.newRem||'').trim(); if(!text) return; const accent=this.PALETTE[this.hash(text)%this.PALETTE.length]; const r={id:'c'+Date.now(),text,accent,done:false,custom:true}; const reminders=this.state.reminders.concat([r]); this.setState({reminders,newRem:''}); this.persistReminders(reminders); this.celebrate('Reminder added ✍️'); }
+
+  toggleReact(annId,type){
+    const reacts={...this.state.reacts}; const cur={...(reacts[annId]||{})}; cur[type]=!cur[type]; reacts[annId]=cur;
+    this.setState({reacts}); if(this.state.nickname) this.writeJSON('tp_reacts_'+this.state.nickname.toLowerCase(),reacts);
+  }
+  toggleRead(annId){
+    const read={...this.state.read}; if(read[annId]) delete read[annId]; else read[annId]=true;
+    this.setState({read}); if(this.state.nickname) this.writeJSON('tp_read_'+this.state.nickname.toLowerCase(),read);
+  }
+  markAllRead(){ const read={...this.state.read}; this.ANN.forEach(a=>{ read[a.id]=true; }); this.setState({read}); if(this.state.nickname) this.writeJSON('tp_read_'+this.state.nickname.toLowerCase(),read); this.celebrate('All caught up ✓'); }
+
+  goHome(){ window.location.href='Home.dc.html'; }
+  goShaw(){ window.location.href='Shaw-rawt.dc.html'; }
+  navMood(){ window.location.href='Mood.dc.html'; }
+  navGames(){ this.celebrate('Games are under construction 🚧 — back soon!'); }
+
+  celebrate(msg){ this.setState({toast:msg,toastShow:true}); clearTimeout(this._t); this._t=setTimeout(()=>this.setState({toastShow:false}),3000); }
+  fireConfetti(){ const layer=this.confettiRef.current; if(!layer) return; const colors=['#86bc25','#0097a9','#62b5e5','#da291c','#ed8b00','#ffcd00']; for(let i=0;i<38;i++){ const d=document.createElement('div'); const c=colors[i%colors.length]; const size=6+Math.random()*9; d.style.cssText='position:absolute;top:-14px;left:'+(Math.random()*100)+'%;width:'+size+'px;height:'+(size*0.55)+'px;background:'+c+';border-radius:2px'; layer.appendChild(d); const x=(Math.random()-0.5)*260,rot=Math.random()*900-450,dur=1500+Math.random()*1300; const a=d.animate([{transform:'translate(0,0) rotate(0)',opacity:1},{transform:'translate('+x+'px,'+(window.innerHeight+80)+'px) rotate('+rot+'deg)',opacity:.85}],{duration:dur,easing:'cubic-bezier(.2,.6,.3,1)'}); a.onfinish=()=>d.remove(); } }
+
+  renderVals(){
+    const s=this.state;
+    const useEmoji=true;
+    const isLight=s.theme==='light';
+    const reminders=s.reminders.slice().sort((a,b)=>(a.done===b.done)?0:(a.done?1:-1)).map(r=>({
+      id:r.id, text:r.text, accent:r.accent, custom:!!r.custom,
+      onToggle:()=>this.toggleReminder(r.id),
+      check:r.done?'✓':'', checkBg:r.done?r.accent:'transparent',
+      checkAnim:r.done?'tpCheck .35s cubic-bezier(.2,.8,.3,1.4) both':'none',
+      cardBg:r.done?'var(--trk)':'var(--card)',
+      textColor:r.done?'var(--txm)':'var(--tx)', strike:r.done?'line-through':'none'
+    }));
+    const remTotal=s.reminders.length;
+    const remDone=s.reminders.filter(r=>r.done).length;
+    const remPct=remTotal?Math.round(remDone/remTotal*100):0;
+    const allDone=remTotal>0 && remDone===remTotal;
+    const remLabel=allDone?'all clear ✨':(remDone===0?'let’s go':'keep going');
+
+    const featured=this.ANN.find(a=>a.pinned)||this.ANN[0];
+    const ftag=this.TAGS[featured.tag];
+    const rest=this.ANN.filter(a=>a.id!==featured.id);
+    const filtered=s.annTag==='all'?rest:rest.filter(a=>a.tag===s.annTag);
+    const annList=filtered.map(a=>{
+      const tg=this.TAGS[a.tag]; const ur=!s.read[a.id];
+      const reactions=this.REACTS.map(type=>{ const active=!!(s.reacts[a.id]&&s.reacts[a.id][type]); const count=(a.reacts[type]||0)+(active?1:0); return {
+        type, emoji:type, count, active,
+        onClick:()=>this.toggleReact(a.id,type),
+        bg:active?tg.color+'26':'var(--trk)', border:active?tg.color:'transparent', color:active?'var(--tx)':'var(--txs)'
+      };});
+      return {
+        id:a.id, emoji:a.emoji, tag:a.tag, tagColor:tg.color, tint:isLight?tg.light:tg.dark,
+        title:a.title, body:a.body, time:a.time,
+        unread:ur, opacity:ur?'1':'.62', cardBg:ur?'var(--trk)':'transparent',
+        reactions,
+        onRead:()=>this.toggleRead(a.id), readLabel:ur?'Mark read':'✓ Read', readBg:ur?'var(--tx)':'transparent', readColor:ur?'var(--bg)':'var(--txm)'
+      };
+    });
+    const unreadCount=this.ANN.filter(a=>!s.read[a.id]).length;
+
+    const TAGKEYS=['all'].concat(Object.keys(this.TAGS));
+    const tagChips=TAGKEYS.map(k=>{ const on=s.annTag===k; const col=k==='all'?'#7c776e':this.TAGS[k].color; return {
+      key:k, label:k==='all'?'All':k, onClick:()=>this.setTag(k),
+      bg:on?col:'transparent', color:on?'#fff':'var(--txs)', border:on?col:'var(--bd)'
+    };});
+
+    const tabsDef=[{k:'all',l:'All'},{k:'ann',l:'📣 News'},{k:'rem',l:'✅ To-dos'}];
+    const tabs=tabsDef.map(t=>{ const on=s.filter===t.k; return { key:t.k, label:t.l, onClick:()=>this.setFilter(t.k), bg:on?'var(--tx)':'transparent', color:on?'var(--bg)':'var(--txs)' }; });
+
+    return {
+      rootRef:this.rootRef,
+      themeIcon:isLight?'🌙':'☀️', toggleTheme:()=>this.toggleTheme(),
+      avatarColor:s.avatarColor, avatarDisplay:useEmoji?s.avatarEmoji:(s.nickname?s.nickname[0].toUpperCase():'?'),
+      nicknameLabel:s.nickname||'Guest',
+      goHome:()=>this.goHome(), navMood:()=>this.navMood(), navShaw:()=>this.goShaw(), navGames:()=>this.navGames(), switchUser:()=>this.switchUser(),
+      unreadCount, hasUnread:unreadCount>0,
+      remDone, remTotal, remPct, remLabel, allDone,
+      tabs, showAnn:s.filter!=='rem', showRem:s.filter!=='ann',
+      tagChips,
+      featuredAccent:ftag.color, featuredTag:featured.tag, featuredEmoji:featured.emoji, featuredTitle:featured.title, featuredBody:featured.body, featuredTime:featured.time,
+      annList, markAllRead:()=>this.markAllRead(),
+      reminders, newRem:s.newRem, onNewRem:(e)=>this.onNewRem(e), onNewRemKey:(e)=>this.onNewRemKey(e), addRem:()=>this.addRem(),
+      toastShow:s.toastShow, toastMsg:s.toast, confettiRef:this.confettiRef,
+      showOnboarding:s.showOnboarding, stepName:s.onbStep==='name', stepConfirm:s.onbStep==='confirm',
+      onbName:s.onbName, onbError:s.onbError, onOnbName:(e)=>this.onOnbName(e), onOnbKey:(e)=>this.onOnbKey(e), onbSubmit:()=>this.onbSubmit(),
+      onbMatchName:s.onbMatch?s.onbMatch.nickname:'', onbMatchEmoji:s.onbMatch?s.onbMatch.emoji:'🙂', onbMatchColor:s.onbMatch?s.onbMatch.color:'#0097a9',
+      confirmYes:()=>this.confirmYes(), confirmNo:()=>this.confirmNo()
+    };
+  }
+}
+</script>
+</body>
+</html>
