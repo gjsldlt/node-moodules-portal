@@ -47,3 +47,8 @@ export function getAvatar(nickname: string): { color: string; emoji: string } {
 export function normalizeNickname(nickname: string): string {
   return nickname.trim().toLowerCase()
 }
+
+export function getAnnouncementAccentColor(emoji: string | null | undefined): string {
+  if (!emoji) return '#0097a9'
+  return AVATAR_PALETTE[hashNickname(emoji) % AVATAR_PALETTE.length]
+}

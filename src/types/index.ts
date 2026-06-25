@@ -27,3 +27,9 @@ export interface LocalTeamDist {
   dist: Record<string, number> // mood key → count
   base: number                  // week number this was fetched for
 }
+
+import type { Database } from '@/lib/supabase/types'
+
+export type AnnouncementRow = Database['public']['Tables']['announcements']['Row']
+export type ReminderRow = Database['public']['Tables']['reminders']['Row']
+export type CompletionRow = Database['public']['Tables']['reminder_completions']['Row']

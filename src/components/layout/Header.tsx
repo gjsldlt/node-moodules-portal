@@ -14,8 +14,8 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { label: 'Home', href: '/' },
-  { label: 'Reminders', href: '/reminders' },
-  { label: 'Mood', href: '/mood' },
+  { label: 'Node-ifications', href: '/node-ifications' },
+  { label: 'Moood', href: '/moood' },
   { label: 'Shaw-rawt', href: '/shawrawt' },
   { label: 'Games', href: '/games' },
 ]

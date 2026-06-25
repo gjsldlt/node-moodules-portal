@@ -30,10 +30,10 @@ Bootstrap the Node Moodus portal from a bare repository (only `.gitignore`, `LIC
 src/app/
   layout.tsx                   # Root layout (Server Component shell)
   page.tsx                     # / — Home dashboard stub
-  reminders/
-    page.tsx                   # /reminders stub
-  mood/
-    page.tsx                   # /mood stub
+  node-ifications/
+    page.tsx                   # /node-ifications stub
+  moood/
+    page.tsx                   # /moood stub
   shawrawt/
     page.tsx                   # /shawrawt stub
   games/

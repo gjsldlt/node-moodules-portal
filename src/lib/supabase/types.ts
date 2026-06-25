@@ -31,6 +31,30 @@ export type Database = {
         }
         Relationships: []
       }
+      announcements: {
+        Row: { id: string; title: string; body: string | null; emoji: string | null; created_by: string; pinned: boolean; created_at: string }
+        Insert: { id?: string; title: string; body?: string | null; emoji?: string | null; created_by: string; pinned?: boolean; created_at?: string }
+        Update: { pinned?: boolean }
+        Relationships: []
+      }
+      reminders: {
+        Row: { id: string; title: string; created_by: string; resolved: boolean; due_date: string | null; created_at: string }
+        Insert: { id?: string; title: string; created_by: string; resolved?: boolean; due_date?: string | null; created_at?: string }
+        Update: { resolved?: boolean }
+        Relationships: []
+      }
+      reminder_completions: {
+        Row: { id: string; reminder_id: string; nickname: string; completed_at: string }
+        Insert: { id?: string; reminder_id: string; nickname: string; completed_at?: string }
+        Update: Record<string, never>
+        Relationships: []
+      }
+      mood_submissions: {
+        Row: { id: string; nickname: string; week_number: number; year: number; score: number; mood_key: string; note: string | null; public_name: boolean; submitted_at: string }
+        Insert: { id?: string; nickname: string; week_number: number; year: number; score: number; mood_key: string; note?: string | null; public_name?: boolean; submitted_at?: string }
+        Update: { score?: number; mood_key?: string; note?: string | null; public_name?: boolean }
+        Relationships: []
+      }
     }
     Views: Record<string, never>
     Functions: Record<string, never>
