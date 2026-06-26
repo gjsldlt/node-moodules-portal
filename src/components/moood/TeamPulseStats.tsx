@@ -51,12 +51,13 @@ export function TeamPulseStats({ entries, trendEntries }: TeamPulseStatsProps) {
   const stats = useMemo(() => {
     if (entries.length === 0) return null
     const avg = entries.reduce((a, e) => a + e.score, 0) / entries.length
+    const uniqueUsers = new Set(entries.map((e) => e.nickname.toLowerCase())).size
     const countByKey: Record<string, number> = {}
     for (const e of entries) {
       countByKey[e.mood_key] = (countByKey[e.mood_key] ?? 0) + 1
     }
     const maxCount = Math.max(...Object.values(countByKey), 1)
-    return { avg, countByKey, maxCount, total: entries.length }
+    return { avg, countByKey, maxCount, total: uniqueUsers }
   }, [entries])
 
   const trendBuckets = useMemo(() => buildTrendBuckets(trendEntries), [trendEntries])
