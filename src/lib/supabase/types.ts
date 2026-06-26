@@ -38,8 +38,8 @@ export type Database = {
         Relationships: []
       }
       reminders: {
-        Row: { id: string; title: string; created_by: string; resolved: boolean; due_date: string | null; created_at: string }
-        Insert: { id?: string; title: string; created_by: string; resolved?: boolean; due_date?: string | null; created_at?: string }
+        Row: { id: string; title: string; content: string | null; created_by: string; resolved: boolean; due_date: string | null; due_time: string | null; type: 'personal' | 'team' | null; created_at: string }
+        Insert: { id?: string; title: string; content?: string | null; created_by: string; resolved?: boolean; due_date?: string | null; due_time?: string | null; type?: 'personal' | 'team'; created_at?: string }
         Update: { resolved?: boolean }
         Relationships: []
       }

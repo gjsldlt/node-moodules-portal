@@ -9,6 +9,7 @@ import {
   type ReactNode,
   type FormEvent,
 } from 'react'
+import { X } from 'lucide-react'
 import {
   motion,
   AnimatePresence,
@@ -384,6 +385,7 @@ export function NicknameProvider({ children }: NicknameProviderProps) {
   // undefined = hydration pending (SSR), null = absent, string = resolved
   const [nickname, setNickname] = useState<string | null | undefined>(undefined)
   const [showGate, setShowGate] = useState(false)
+  const [previousNickname, setPreviousNickname] = useState<string | null>(null)
   const [step, setStep] = useState<'name' | 'confirm'>('name')
   const [direction, setDirection] = useState<1 | -1>(1)
   const [pendingUser, setPendingUser] = useState<LocalUser | null>(null)
@@ -441,12 +443,14 @@ export function NicknameProvider({ children }: NicknameProviderProps) {
     const result = await resolveNickname(inputNickname)
 
     if (result.status === 'created') {
+      storageClear()
       storageSet(STORAGE_KEYS.NICKNAME, result.user.nickname)
       updateKnownUsers(result.user)
       setNickname(result.user.nickname)
       setShowGate(false)
       setStep('name')
       setDirection(1)
+      setPreviousNickname(null)
 
       // Dynamic import keeps canvas-confetti out of the SSR bundle
       const confetti = (await import('canvas-confetti')).default
@@ -471,12 +475,17 @@ export function NicknameProvider({ children }: NicknameProviderProps) {
 
   function handleConfirmYes() {
     if (!pendingUser) return
+    // Clear old user's data only when switching to a different account
+    if (previousNickname?.toLowerCase() !== pendingUser.nickname.toLowerCase()) {
+      storageClear()
+    }
     storageSet(STORAGE_KEYS.NICKNAME, pendingUser.nickname)
     updateKnownUsers(pendingUser)
     setNickname(pendingUser.nickname)
     setShowGate(false)
     setStep('name')
     setDirection(1)
+    setPreviousNickname(null)
     showToast(`Welcome back, ${pendingUser.nickname}! ${pendingUser.emoji}`)
     setPendingUser(null)
   }
@@ -489,7 +498,9 @@ export function NicknameProvider({ children }: NicknameProviderProps) {
   }
 
   function triggerSwitch() {
-    storageClear()
+    // Save current nickname so cancel can restore it. Don't clear storage yet —
+    // only clear when the user actually confirms a new/different account.
+    setPreviousNickname(nickname ?? null)
     setNickname(null)
     setPendingUser(null)
     setStep('name')
@@ -497,6 +508,17 @@ export function NicknameProvider({ children }: NicknameProviderProps) {
     setStepNameError(null)
     setIsSubmitting(false)
     setShowGate(true)
+  }
+
+  function handleCancel() {
+    if (previousNickname) {
+      // Storage was never cleared — just restore the in-memory state
+      setNickname(previousNickname)
+    }
+    setPreviousNickname(null)
+    setShowGate(false)
+    setStep('name')
+    setStepNameError(null)
   }
 
   // Render nothing distinctive while waiting for hydration
@@ -524,6 +546,7 @@ export function NicknameProvider({ children }: NicknameProviderProps) {
             animate="visible"
             exit="exit"
             transition={t_easeOut_03}
+            onClick={previousNickname ? handleCancel : undefined}
             style={{
               position: 'fixed',
               inset: 0,
@@ -535,13 +558,14 @@ export function NicknameProvider({ children }: NicknameProviderProps) {
               backdropFilter: 'blur(8px)',
               WebkitBackdropFilter: 'blur(8px)',
               padding: '24px',
+              cursor: previousNickname ? 'default' : undefined,
             }}
           >
             <FocusTrap
               focusTrapOptions={{
                 initialFocus:
                   step === 'name' ? '#nickname-input' : '#confirm-yes-btn',
-                allowOutsideClick: false,
+                allowOutsideClick: !!previousNickname,
                 returnFocusOnDeactivate: true,
               }}
             >
@@ -560,6 +584,7 @@ export function NicknameProvider({ children }: NicknameProviderProps) {
                       ? ({ duration: 0.2, ease: 'easeOut' } as Transition)
                       : t_pop_enter
                   }
+                  onClick={(e) => e.stopPropagation()}
                   style={{
                     background: 'var(--card)',
                     borderRadius: '26px',
@@ -570,6 +595,23 @@ export function NicknameProvider({ children }: NicknameProviderProps) {
                     overflow: 'hidden',
                   }}
                 >
+                  {/* Close button — only when switching from an existing account */}
+                  {previousNickname && (
+                    <button
+                      onClick={handleCancel}
+                      aria-label="Cancel and go back"
+                      style={{
+                        position: 'absolute', top: '18px', right: '18px',
+                        width: '32px', height: '32px', borderRadius: '50%',
+                        border: '1px solid var(--bd)', background: 'var(--trk)',
+                        color: 'var(--txm)', cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}
+                    >
+                      <X size={14} />
+                    </button>
+                  )}
+
                   {/* Card header: logo mark + wordmark */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px' }}>
                     <CardLogoMark animate={!shouldReduce} />

@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { getISOWeek } from '@/lib/week'
+import { checkIsAdmin } from '@/lib/admin'
 import { NodeificationsHero } from '@/components/node-ifications/NodeificationsHero'
 import { NodeificationsClient } from '@/components/node-ifications/NodeificationsClient'
 
@@ -12,6 +13,7 @@ export default async function NodeificationsPage() {
     { data: remindersData },
     { data: completionsData },
     { count: moodCount },
+    isAdmin,
   ] = await Promise.all([
     supabase.from('announcements').select('*').order('created_at', { ascending: false }).limit(20),
     supabase.from('reminders').select('*').eq('resolved', false).order('created_at', { ascending: false }),
@@ -21,6 +23,7 @@ export default async function NodeificationsPage() {
       .select('id', { count: 'exact', head: true })
       .eq('week_number', week)
       .eq('year', year),
+    checkIsAdmin(),
   ])
 
   const announcements = announcementsData ?? []
@@ -34,9 +37,10 @@ export default async function NodeificationsPage() {
       style={{
         position: 'relative',
         zIndex: 1,
-        maxWidth: '1180px',
+        width: '100%',
+        maxWidth: '1280px',
         margin: '0 auto',
-        padding: 'clamp(20px,4vw,40px) clamp(16px,4vw,40px) 64px',
+        padding: 'clamp(20px,4vw,40px) clamp(20px,4vw,40px) 64px',
       }}
     >
       <NodeificationsHero
@@ -47,6 +51,7 @@ export default async function NodeificationsPage() {
         initialAnnouncements={announcements}
         initialReminders={reminders}
         initialCompletions={completions}
+        isAdmin={isAdmin}
       />
     </main>
   )

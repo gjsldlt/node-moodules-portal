@@ -2,17 +2,20 @@
 
 import { motion, useReducedMotion } from 'framer-motion'
 
-const TABS = [
-  { id: 'announcements' as const, label: '📣 Announcements' },
-  { id: 'reminders' as const, label: '✅ Reminders' },
+export type Tab = 'all' | 'announcements' | 'reminders'
+
+const TABS: { id: Tab; label: string }[] = [
+  { id: 'all', label: '🗂️ All' },
+  { id: 'announcements', label: '📣 Announcements' },
+  { id: 'reminders', label: '✅ Reminders' },
 ]
 
 export function TabToggle({
   activeTab,
   onTabChange,
 }: {
-  activeTab: 'announcements' | 'reminders'
-  onTabChange: (t: 'announcements' | 'reminders') => void
+  activeTab: Tab
+  onTabChange: (t: Tab) => void
 }) {
   const shouldReduce = useReducedMotion()
 

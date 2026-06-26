@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import type { AnnouncementRow } from '@/types'
 import { addAnnouncement } from '@/app/node-ifications/actions'
+import { MarkdownEditor } from './MarkdownEditor'
 
 const PRESET_EMOJIS = ['📢', '🎉', '⚠️', '🔥', '✅', '💡']
 
@@ -117,13 +118,11 @@ export function AddAnnouncementForm({ nickname, onAdd, onToast }: Props) {
           aria-label="Announcement title"
         />
 
-        <textarea
-          placeholder="Body text (optional)…"
+        <MarkdownEditor
           value={body}
-          onChange={(e) => setBody(e.target.value)}
-          rows={3}
-          style={{ ...inputStyle, resize: 'vertical' }}
-          aria-label="Announcement body"
+          onChange={setBody}
+          placeholder="Body text, links, details… (optional)"
+          minHeight={120}
         />
 
         {error && (

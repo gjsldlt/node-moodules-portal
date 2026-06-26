@@ -6,6 +6,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { checkIsAdmin } from '@/lib/admin'
 import type { AnnouncementRow, ReminderRow } from '@/types'
 
 export async function addAnnouncement(input: {
@@ -43,14 +44,13 @@ export async function deleteAnnouncement(input: {
   const { id, nickname } = input
 
   const supabase = await createClient()
-  const { data: row, error: fetchError } = await supabase
-    .from('announcements')
-    .select('created_by')
-    .eq('id', id)
-    .single()
+  const [{ data: row, error: fetchError }, isAdmin] = await Promise.all([
+    supabase.from('announcements').select('created_by').eq('id', id).single(),
+    checkIsAdmin(),
+  ])
 
   if (fetchError || !row) return { error: 'Announcement not found.' }
-  if (row.created_by.toLowerCase() !== nickname.toLowerCase()) return { error: 'Forbidden' }
+  if (!isAdmin && row.created_by.toLowerCase() !== nickname.toLowerCase()) return { error: 'Forbidden' }
 
   const { error } = await supabase.from('announcements').delete().eq('id', id)
   if (error) return { error: error.message }
@@ -61,10 +61,13 @@ export async function deleteAnnouncement(input: {
 
 export async function addReminder(input: {
   title: string
+  content?: string | null
   dueDate?: string | null
+  dueTime?: string | null
   nickname: string
+  type?: 'personal' | 'team'
 }): Promise<{ data: ReminderRow } | { error: string }> {
-  const { title, dueDate, nickname } = input
+  const { title, content, dueDate, dueTime, nickname, type = 'team' } = input
 
   if (!title || title.trim().length < 1 || title.trim().length > 120) {
     return { error: 'Title must be 1–120 characters.' }
@@ -76,7 +79,7 @@ export async function addReminder(input: {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('reminders')
-    .insert({ title: title.trim(), created_by: nickname, resolved: false, due_date: dueDate ?? null })
+    .insert({ title: title.trim(), content: content ?? null, created_by: nickname, resolved: false, due_date: dueDate ?? null, due_time: dueTime ?? null, type })
     .select()
     .single()
 
@@ -122,14 +125,13 @@ export async function resolveReminder(input: {
   const { id, nickname } = input
 
   const supabase = await createClient()
-  const { data: row, error: fetchError } = await supabase
-    .from('reminders')
-    .select('created_by')
-    .eq('id', id)
-    .single()
+  const [{ data: row, error: fetchError }, isAdmin] = await Promise.all([
+    supabase.from('reminders').select('created_by').eq('id', id).single(),
+    checkIsAdmin(),
+  ])
 
   if (fetchError || !row) return { error: 'Reminder not found.' }
-  if (row.created_by.toLowerCase() !== nickname.toLowerCase()) return { error: 'Forbidden' }
+  if (!isAdmin && row.created_by.toLowerCase() !== nickname.toLowerCase()) return { error: 'Forbidden' }
 
   const { error } = await supabase.from('reminders').update({ resolved: true }).eq('id', id)
   if (error) return { error: error.message }

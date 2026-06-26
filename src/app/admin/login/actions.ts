@@ -55,7 +55,7 @@ export async function loginAdmin(
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
-    path: '/admin',
+    path: '/',
     maxAge: 86400, // 24 hours
   })
 

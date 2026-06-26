@@ -12,7 +12,10 @@ interface Props {
   nickname: string | null
   onToggle: (reminderId: string, done: boolean) => void
   onResolve: (reminderId: string) => void
+  onView: (r: ReminderRow) => void
   submittingIds: Set<string>
+  isAdmin: boolean
+  emptyLabel?: string
 }
 
 function ReminderItem({
@@ -23,6 +26,8 @@ function ReminderItem({
   submitting,
   onToggle,
   onResolve,
+  onView,
+  isAdmin,
   shouldReduce,
 }: {
   reminder: ReminderRow
@@ -32,10 +37,17 @@ function ReminderItem({
   submitting: boolean
   onToggle: (reminderId: string, done: boolean) => void
   onResolve: (reminderId: string) => void
+  onView: (r: ReminderRow) => void
+  isAdmin: boolean
   shouldReduce: boolean
 }) {
   const [confirming, setConfirming] = useState(false)
-  const isOwner = reminder.created_by.toLowerCase() === nickname?.toLowerCase()
+  const isOwner = isAdmin || reminder.created_by.toLowerCase() === nickname?.toLowerCase()
+
+  const contentPreview = reminder.content
+    ? reminder.content.replace(/[#*`_~\[\]]/g, '').slice(0, 72).trimEnd() +
+      (reminder.content.replace(/[#*`_~\[\]]/g, '').length > 72 ? '…' : '')
+    : null
 
   useEffect(() => {
     if (!confirming) return
@@ -106,18 +118,57 @@ function ReminderItem({
           {isDone ? '✓' : ''}
         </motion.button>
 
-        <span
+        <button
+          onClick={() => onView(reminder)}
           style={{
-            fontWeight: 600,
-            fontSize: '15px',
             flex: 1,
-            color: isDone ? 'var(--txm)' : 'var(--tx)',
-            textDecoration: isDone ? 'line-through' : 'none',
-            transition: 'color 0.2s, text-decoration 0.2s',
+            minWidth: 0,
+            background: 'none',
+            border: 'none',
+            padding: 0,
+            cursor: 'pointer',
+            textAlign: 'left',
+            fontFamily: 'inherit',
           }}
         >
-          {reminder.title}
-        </span>
+          <div style={{
+            fontWeight: 600,
+            fontSize: '15px',
+            color: isDone ? 'var(--txm)' : 'var(--tx)',
+            textDecoration: isDone ? 'line-through' : 'none',
+            transition: 'color 0.2s',
+          }}>
+            {reminder.title}
+          </div>
+          {contentPreview && !isDone && (
+            <div style={{
+              fontSize: '12px',
+              color: 'var(--txm)',
+              marginTop: '2px',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}>
+              {contentPreview}
+            </div>
+          )}
+        </button>
+
+        {reminder.type === 'personal' && (
+          <span
+            style={{
+              padding: '2px 8px',
+              borderRadius: '999px',
+              fontSize: '11px',
+              fontWeight: 700,
+              background: 'var(--trk)',
+              color: 'var(--txm)',
+              flexShrink: 0,
+            }}
+          >
+            👤
+          </span>
+        )}
 
         {reminder.due_date && (
           <span
@@ -129,12 +180,11 @@ function ReminderItem({
               background: isPast ? 'rgba(218,41,28,0.15)' : 'var(--trk)',
               color: isPast ? 'var(--red)' : 'var(--txs)',
               flexShrink: 0,
+              whiteSpace: 'nowrap',
             }}
           >
-            {new Date(reminder.due_date + 'T00:00:00').toLocaleDateString('en-US', {
-              month: 'short',
-              day: 'numeric',
-            })}
+            {new Date(reminder.due_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+            {reminder.due_time && ` · ${reminder.due_time}`}
           </span>
         )}
 
@@ -167,7 +217,10 @@ export function ReminderList({
   nickname,
   onToggle,
   onResolve,
+  onView,
   submittingIds,
+  isAdmin,
+  emptyLabel,
 }: Props) {
   const [listRef] = useAutoAnimate<HTMLUListElement>()
   const shouldReduce = useReducedMotion() ?? false
@@ -180,7 +233,7 @@ export function ReminderList({
     return (
       <div style={{ textAlign: 'center', padding: '40px 16px', color: 'var(--txs)' }}>
         <div style={{ fontSize: '32px', marginBottom: '8px' }}>✅</div>
-        <div style={{ fontWeight: 700 }}>All clear! No active reminders.</div>
+        <div style={{ fontWeight: 700 }}>{emptyLabel ?? 'All clear! No active reminders.'}</div>
       </div>
     )
   }
@@ -197,6 +250,8 @@ export function ReminderList({
           submitting={submittingIds.has(r.id)}
           onToggle={onToggle}
           onResolve={onResolve}
+          onView={onView}
+          isAdmin={isAdmin}
           shouldReduce={shouldReduce}
         />
       ))}

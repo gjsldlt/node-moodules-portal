@@ -31,9 +31,11 @@ interface Props {
   announcement: AnnouncementRow
   nickname: string | null
   onDelete: (id: string) => void
+  onView: (a: AnnouncementRow) => void
+  isAdmin: boolean
 }
 
-export function FeaturedAnnouncementCard({ announcement, nickname, onDelete }: Props) {
+export function FeaturedAnnouncementCard({ announcement, nickname, onDelete, onView, isAdmin }: Props) {
   const [confirming, setConfirming] = useState(false)
   const accent = getAnnouncementAccentColor(announcement.emoji)
 
@@ -52,7 +54,7 @@ export function FeaturedAnnouncementCard({ announcement, nickname, onDelete }: P
     await deleteAnnouncement({ id: announcement.id, nickname: nickname! })
   }
 
-  const isOwner = nickname?.toLowerCase() === announcement.created_by?.toLowerCase()
+  const isOwner = isAdmin || nickname?.toLowerCase() === announcement.created_by?.toLowerCase()
 
   return (
     <motion.div
@@ -100,39 +102,33 @@ export function FeaturedAnnouncementCard({ announcement, nickname, onDelete }: P
         </span>
       )}
 
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+      <button
+        onClick={() => onView(announcement)}
+        style={{
+          display: 'flex', alignItems: 'flex-start', gap: '12px',
+          background: 'none', border: 'none', padding: 0, cursor: 'pointer',
+          textAlign: 'left', fontFamily: 'inherit', width: '100%',
+        }}
+      >
         <span style={{ fontSize: '30px', flexShrink: 0, lineHeight: 1 }}>
           {announcement.emoji ?? '📢'}
         </span>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div
-            style={{
-              fontFamily: "'Bricolage Grotesque', sans-serif",
-              fontWeight: 700,
-              fontSize: '20px',
-              lineHeight: 1.15,
-              marginBottom: '6px',
-            }}
-          >
+          <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: '20px', lineHeight: 1.15, marginBottom: '6px' }}>
             {announcement.title}
           </div>
           {announcement.body && (
-            <div
-              style={{
-                fontSize: '14px',
-                opacity: 0.88,
-                marginBottom: '8px',
-                lineHeight: 1.5,
-              }}
-            >
-              {announcement.body}
+            <div style={{ fontSize: '14px', opacity: 0.88, marginBottom: '8px', lineHeight: 1.5, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+              {announcement.body.replace(/[#*`_~\[\]]/g, '').slice(0, 140)}
+              {announcement.body.length > 140 ? '…' : ''}
             </div>
           )}
           <div style={{ fontSize: '12px', opacity: 0.6 }}>
             by {announcement.created_by} · {relativeTime(announcement.created_at)}
+            {announcement.body && <span style={{ opacity: 0.7 }}> · Read more →</span>}
           </div>
         </div>
-      </div>
+      </button>
 
       {isOwner && (
         <button

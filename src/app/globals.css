@@ -180,6 +180,23 @@ input::placeholder { color: var(--txm); }
 }
 
 /* ─── Reduced motion overrides ─── */
+/* ─── Avatar chip — compact at ≤425px ─── */
+@media (max-width: 425px) {
+  .tp-avatar-name   { display: none !important; }
+  .tp-avatar-switch { display: none !important; }
+  .tp-avatar-chip   { padding: 2px !important; }
+}
+
+/* ─── Responsive header ─── */
+/* Hamburger hidden on desktop, nav visible */
+.tp-hamburger { display: none !important; }
+
+@media (max-width: 1023px) {
+  /* Show hamburger, hide inline nav */
+  .tp-hamburger { display: flex !important; }
+  .tp-header-nav { display: none !important; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

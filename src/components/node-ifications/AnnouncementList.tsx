@@ -38,15 +38,19 @@ function AnnouncementItem({
   isLast,
   nickname,
   onDelete,
+  onView,
+  isAdmin,
 }: {
   announcement: AnnouncementRow
   isLast: boolean
   nickname: string | null
   onDelete: (id: string) => void
+  onView: (a: AnnouncementRow) => void
+  isAdmin: boolean
 }) {
   const [confirming, setConfirming] = useState(false)
   const accent = getAnnouncementAccentColor(announcement.emoji)
-  const isOwner = nickname?.toLowerCase() === announcement.created_by?.toLowerCase()
+  const isOwner = isAdmin || nickname?.toLowerCase() === announcement.created_by?.toLowerCase()
 
   useEffect(() => {
     if (!confirming) return
@@ -94,24 +98,20 @@ function AnnouncementItem({
           {announcement.emoji ?? '📢'}
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontWeight: 700, fontSize: '15px', marginBottom: '3px' }}>
-            {announcement.title}
-          </div>
-          {announcement.body && (
-            <div
-              style={{
-                fontSize: '13px',
-                color: 'var(--txs)',
-                marginBottom: '4px',
-                overflow: 'hidden',
-                display: '-webkit-box',
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: 'vertical',
-              }}
-            >
-              {announcement.body}
+          <button
+            onClick={() => onView(announcement)}
+            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit', width: '100%' }}
+          >
+            <div style={{ fontWeight: 700, fontSize: '15px', marginBottom: '3px', color: 'var(--tx)' }}>
+              {announcement.title}
             </div>
-          )}
+            {announcement.body && (
+              <div style={{ fontSize: '13px', color: 'var(--txs)', marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {announcement.body.replace(/[#*`_~\[\]]/g, '').slice(0, 80)}
+                {announcement.body.length > 80 ? '…' : ''}
+              </div>
+            )}
+          </button>
           <div style={{ fontSize: '12px', color: 'var(--txm)' }}>
             by {announcement.created_by} · {relativeTime(announcement.created_at)}
           </div>
@@ -143,9 +143,11 @@ interface Props {
   announcements: AnnouncementRow[]
   nickname: string | null
   onDelete: (id: string) => void
+  onView: (a: AnnouncementRow) => void
+  isAdmin: boolean
 }
 
-export function AnnouncementList({ announcements, nickname, onDelete }: Props) {
+export function AnnouncementList({ announcements, nickname, onDelete, onView, isAdmin }: Props) {
   const [listRef] = useAutoAnimate<HTMLUListElement>()
 
   if (announcements.length === 0) {
@@ -169,6 +171,8 @@ export function AnnouncementList({ announcements, nickname, onDelete }: Props) {
             isLast={i === announcements.length - 1}
             nickname={nickname}
             onDelete={onDelete}
+            onView={onView}
+            isAdmin={isAdmin}
           />
         ))}
       </ul>
