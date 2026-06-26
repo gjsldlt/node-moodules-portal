@@ -55,6 +55,18 @@ export type Database = {
         Update: { score?: number; mood_key?: string; note?: string | null; public_name?: boolean }
         Relationships: []
       }
+      mood_entries: {
+        Row: { id: string; nickname: string; entry_date: string; score: number; mood_key: string; submitted_at: string }
+        Insert: { id?: string; nickname: string; entry_date: string; score: number; mood_key: string; submitted_at?: string }
+        Update: { score?: number; mood_key?: string }
+        Relationships: []
+      }
+      daily_words: {
+        Row: { id: string; nickname: string; word: string; entry_date: string; submitted_at: string }
+        Insert: { id?: string; nickname: string; word: string; entry_date: string; submitted_at?: string }
+        Update: { word?: string }
+        Relationships: []
+      }
     }
     Views: Record<string, never>
     Functions: Record<string, never>
