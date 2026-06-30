@@ -28,8 +28,20 @@ export interface LocalTeamDist {
   base: number                  // week number this was fetched for
 }
 
+export interface QotdQuestion {
+  id: string
+  text: string
+}
+
+export interface QotdSuitcase {
+  number: number
+  questionId: string
+  opened: boolean
+}
+
 import type { Database } from '@/lib/supabase/types'
 
+export type UserRow = Database['public']['Tables']['users']['Row']
 export type AnnouncementRow = Database['public']['Tables']['announcements']['Row']
 export type ReminderRow = Database['public']['Tables']['reminders']['Row']
 export type CompletionRow = Database['public']['Tables']['reminder_completions']['Row']
