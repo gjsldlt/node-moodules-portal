@@ -5,6 +5,7 @@ import { LenisProvider } from '@/components/layout/LenisProvider'
 import { NicknameProvider } from '@/components/layout/NicknameGate'
 import { Header } from '@/components/layout/Header'
 import AmbientBackground from '@/components/layout/AmbientBackground'
+import { PageTransitionBar } from '@/components/layout/PageTransitionBar'
 
 export const metadata: Metadata = {
   title: 'Node Moodus',
@@ -39,6 +40,9 @@ export default function RootLayout({
         <LenisProvider>
           <ThemeProvider>
             <NicknameProvider>
+              {/* Navigation progress bar — fixed, z-index 1000, above everything */}
+              <PageTransitionBar />
+
               {/* Fixed ambient background orbs — z-index 0, below all content */}
               <AmbientBackground />
 

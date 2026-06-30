@@ -251,24 +251,45 @@ export function MooodClient({
           position: 'relative',
         }}
       >
-        {loading && (
-          <div
-            aria-busy="true"
-            aria-label="Loading"
-            style={{
-              position: 'absolute',
-              inset: 0,
-              zIndex: 5,
-              background: 'rgba(0,0,0,0.08)',
-              borderRadius: '26px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backdropFilter: 'blur(2px)',
-              pointerEvents: 'none',
-            }}
-          />
-        )}
+        <AnimatePresence>
+          {loading && (
+            <motion.div
+              key="moood-filter-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              aria-busy="true"
+              aria-label="Loading"
+              style={{
+                position: 'absolute',
+                inset: 0,
+                zIndex: 5,
+                background: 'rgba(0,0,0,0.08)',
+                borderRadius: '26px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backdropFilter: 'blur(2px)',
+                pointerEvents: 'none',
+              }}
+            >
+              {!shouldReduce && (
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 0.75, ease: 'linear', repeat: Infinity }}
+                  style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: '50%',
+                    border: '2.5px solid var(--bd)',
+                    borderTopColor: 'var(--teal)',
+                  }}
+                />
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
         <MoodGraph entries={moodEntries} filter={filter} />
         <TeamPulseStats entries={visEntries} trendEntries={trendEntries} />
       </motion.div>

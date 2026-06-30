@@ -179,7 +179,16 @@ input::placeholder { color: var(--txm); }
   to   { transform: scaleY(1); }
 }
 
+@keyframes skeletonShimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 /* ─── Reduced motion overrides ─── */
+@media (prefers-reduced-motion: reduce) {
+  .tp-skeleton { animation: none !important; background: var(--trk) !important; }
+}
+
 /* ─── Avatar chip — compact at ≤425px ─── */
 @media (max-width: 425px) {
   .tp-avatar-name   { display: none !important; }
