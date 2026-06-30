@@ -42,7 +42,7 @@ export function SuggestGameCard({ index = 0 }: { index?: number }) {
           Got a game idea?
         </p>
         <p style={{ margin: 0, fontSize: '13px', color: 'var(--txm)' }}>
-          Drop it in Slack and we&apos;ll build it.
+          Drop it in Teams and we&apos;ll build it.
         </p>
       </div>
     </motion.div>
