@@ -116,7 +116,7 @@ export function Header() {
           <nav
             className="tp-header-nav"
             aria-label="Main navigation"
-            style={{ display: 'flex', gap: '4px', overflowX: 'auto', flex: 1, scrollbarWidth: 'none' }}
+            style={{ display: 'flex', gap: '4px', flex: 1, padding: '6px 0' }}
           >
             {NAV_ITEMS.map((item) => {
               const active = isActive(item.href)
