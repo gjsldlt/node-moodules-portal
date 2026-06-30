@@ -7,7 +7,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { useTheme } from './ThemeProvider'
 import { getAvatar } from '@/lib/identity'
 import { useNickname } from '@/hooks/useNickname'
-import { Sun, Moon, Menu, X, Zap } from 'lucide-react'
+import { Sun, Moon, Menu, X, Zap, ScrollText } from 'lucide-react'
 
 interface NavItem {
   label: string
@@ -25,7 +25,7 @@ const NAV_ITEMS: NavItem[] = [
 
 export function Header() {
   const pathname = usePathname()
-  const { theme, toggleTheme, activateCyberpunk } = useTheme()
+  const { theme, toggleTheme, cycleSecretTheme } = useTheme()
   const { nickname, triggerSwitch } = useNickname()
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [compactAvatar, setCompactAvatar] = useState(false)
@@ -107,7 +107,7 @@ export function Header() {
               <div style={{ position: 'absolute', bottom: '0', left: '50%', transform: 'translateX(-50%)', width: '16px', height: '16px', borderRadius: '50%', background: 'var(--orange)', animation: 'tpBob 3.4s ease-in-out 0.4s infinite' }} />
               <div style={{ position: 'absolute', bottom: '0', right: '0', width: '12px', height: '12px', borderRadius: '50%', background: 'var(--red)' }} />
             </div>
-            <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: '20px', letterSpacing: '-0.02em', color: 'var(--tx)', lineHeight: 1 }}>
+            <span className="tp-logo-text" style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: '20px', letterSpacing: '-0.02em', color: 'var(--tx)', lineHeight: 1 }}>
               Node Moodus
             </span>
           </Link>
@@ -146,30 +146,40 @@ export function Header() {
           <div className="tp-header-controls" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0, marginLeft: 'auto' }}>
             <button
               onClick={toggleTheme}
-              onContextMenu={(e) => { e.preventDefault(); activateCyberpunk() }}
+              onContextMenu={(e) => { e.preventDefault(); cycleSecretTheme() }}
               aria-label={
-                theme === 'cyberpunk'
-                  ? 'Cyberpunk mode active — click to exit, right-click to toggle'
-                  : `Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`
+                theme === 'cyberpunk' ? 'Cyberpunk mode — click to exit, right-click for LOTR' :
+                theme === 'lotr'      ? 'LOTR mode — click to exit, right-click to cycle' :
+                `Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`
               }
-              title={theme !== 'cyberpunk' ? 'Right-click for a surprise' : undefined}
+              title={theme === 'dark' || theme === 'light' ? 'Right-click for a surprise' : undefined}
               style={{
                 width: '38px', height: '38px', borderRadius: '50%',
-                border: theme === 'cyberpunk' ? '1px solid #00fff5' : '1px solid var(--bd)',
-                background: theme === 'cyberpunk' ? 'rgba(0,255,245,.12)' : 'var(--trk)',
-                color: theme === 'cyberpunk' ? '#00fff5' : 'var(--txs)',
+                border:
+                  theme === 'cyberpunk' ? '1px solid #00fff5' :
+                  theme === 'lotr'      ? '1px solid #c9a84c' :
+                  '1px solid var(--bd)',
+                background:
+                  theme === 'cyberpunk' ? 'rgba(0,255,245,.12)' :
+                  theme === 'lotr'      ? 'rgba(201,168,76,.12)' :
+                  'var(--trk)',
+                color:
+                  theme === 'cyberpunk' ? '#00fff5' :
+                  theme === 'lotr'      ? '#c9a84c' :
+                  'var(--txs)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 cursor: 'pointer', flexShrink: 0,
-                boxShadow: theme === 'cyberpunk' ? '0 0 12px rgba(0,255,245,.4), 0 0 28px rgba(0,255,245,.15)' : 'none',
+                boxShadow:
+                  theme === 'cyberpunk' ? '0 0 12px rgba(0,255,245,.4), 0 0 28px rgba(0,255,245,.15)' :
+                  theme === 'lotr'      ? '0 0 12px rgba(201,168,76,.45), 0 0 28px rgba(201,168,76,.18)' :
+                  'none',
                 transition: 'all 0.3s ease',
               }}
             >
-              {theme === 'cyberpunk'
-                ? <Zap size={16} />
-                : theme === 'dark'
-                  ? <Sun size={16} />
-                  : <Moon size={16} />
-              }
+              {theme === 'cyberpunk' ? <Zap size={16} /> :
+               theme === 'lotr'      ? <ScrollText size={16} /> :
+               theme === 'dark'      ? <Sun size={16} /> :
+                                       <Moon size={16} />}
             </button>
 
             {avatar && nickname && (

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Cinzel:wght@400;700;900&family=Hanken+Grotesk:wght@400;500;600;700;800&family=Orbitron:wght@400;700;900&display=swap');
 
 @import "tailwindcss";
 @import "tw-animate-css";
@@ -134,10 +134,20 @@
   );
 }
 
-/* Neon glow on text headings */
+/* Orbitron for all display headings */
 [data-theme="cyberpunk"] h1,
 [data-theme="cyberpunk"] h2 {
+  font-family: 'Orbitron', sans-serif !important;
   text-shadow: 0 0 28px rgba(0,255,245,.25), 0 0 60px rgba(0,255,245,.1);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Logo wordmark in Orbitron */
+[data-theme="cyberpunk"] .tp-logo-text {
+  font-family: 'Orbitron', sans-serif !important;
+  letter-spacing: 0.1em;
+  font-size: 17px !important;
 }
 
 /* Neon scrollbar */
@@ -182,6 +192,110 @@
   background: #00fff5 !important;
   color: #07040f !important;
   box-shadow: 0 0 16px rgba(0,255,245,.5), 0 0 32px rgba(0,255,245,.2);
+}
+
+/* ─── Lord of the Rings theme (secret: right-click theme button twice) ─── */
+[data-theme="lotr"] {
+  --bg:     #0c0905;
+  --card:   #141009;
+  --pnl:    #1a1508;
+  --trk:    #221c0b;
+  --hdr:    rgba(12,9,5,.88);
+  --bd:     rgba(201,168,76,.18);
+  --tx:     #e8e0c8;
+  --txs:    #c4b490;
+  --txm:    #7a6a4a;
+  --pnlt:   #e8e0c8;
+  --pnls:   #b09a6a;
+  --shadow: rgba(0,0,0,.85);
+
+  /* Middle-earth accent overrides */
+  --green:   #4a7c3f;   /* Shire green */
+  --teal:    #2a6b6e;   /* Rivendell teal */
+  --sky:     #c9a84c;   /* One Ring gold */
+  --orange:  #c17f24;   /* Rohan amber */
+  --red:     #8b1a1a;   /* Mordor red */
+  --yellow:  #f0d060;   /* Galadriel's light */
+  --emerald: #3a7a5a;   /* Fangorn deep green */
+}
+
+/* Fires of Mordor + elvish shimmer body atmosphere */
+[data-theme="lotr"] body {
+  background:
+    radial-gradient(ellipse at 50% 110%, rgba(139,26,26,.25) 0%, transparent 45%),
+    radial-gradient(ellipse at 82% 12%,  rgba(201,168,76,.07) 0%, transparent 40%),
+    radial-gradient(ellipse at 12% 78%,  rgba(74,124,63,.06)  0%, transparent 40%),
+    var(--bg);
+}
+
+/* Vignette + torch flicker overlay */
+[data-theme="lotr"] body::before {
+  content: '';
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: radial-gradient(ellipse at 50% 50%, transparent 30%, rgba(0,0,0,.55) 100%);
+  animation: lotrTorchFlicker 7s ease-in-out infinite;
+}
+
+/* Cinzel for all display headings */
+[data-theme="lotr"] h1,
+[data-theme="lotr"] h2 {
+  font-family: 'Cinzel', 'Palatino Linotype', serif !important;
+  text-shadow: 0 0 28px rgba(201,168,76,.35), 0 0 60px rgba(201,168,76,.12);
+  letter-spacing: 0.04em;
+}
+
+/* Logo wordmark in Cinzel */
+[data-theme="lotr"] .tp-logo-text {
+  font-family: 'Cinzel', serif !important;
+  letter-spacing: 0.06em;
+}
+
+/* Golden ring glow pulsing from the logo mark circles */
+[data-theme="lotr"] .tp-logo-mark {
+  animation: lotrLogoGlow 4s ease-in-out infinite;
+}
+
+/* Active nav pill — One Ring gold */
+[data-theme="lotr"] .tp-nav-active {
+  background: #c9a84c !important;
+  color: #0c0905 !important;
+  box-shadow: 0 0 14px rgba(201,168,76,.55), 0 0 32px rgba(201,168,76,.2);
+}
+
+/* Golden scrollbar */
+[data-theme="lotr"] ::-webkit-scrollbar { width: 5px; height: 5px; }
+[data-theme="lotr"] ::-webkit-scrollbar-track { background: var(--bg); }
+[data-theme="lotr"] ::-webkit-scrollbar-thumb {
+  background: #c9a84c;
+  border-radius: 3px;
+  box-shadow: 0 0 8px rgba(201,168,76,.6);
+}
+
+/* The One Ring glow on the logo circles */
+@keyframes lotrLogoGlow {
+  0%, 100% { filter: drop-shadow(0 0 5px rgba(201,168,76,.5)); }
+  50%       { filter: drop-shadow(0 0 12px rgba(201,168,76,.85)) drop-shadow(0 0 26px rgba(201,168,76,.35)); }
+}
+
+/* Torch flicker — vignette breathes like firelight */
+@keyframes lotrTorchFlicker {
+  0%, 100%  { opacity: .88; }
+  14%       { opacity: .68; }
+  28%       { opacity: .82; }
+  42%       { opacity: .60; }
+  56%       { opacity: .78; }
+  70%       { opacity: .52; }
+  84%       { opacity: .75; }
+}
+
+/* Elvish shimmer — slow golden sweep on featured elements */
+@keyframes lotrElfShimmer {
+  0%        { transform: translateX(-130%) skewX(-14deg); opacity: 0; }
+  4%        { opacity: .55; }
+  55%, 100% { transform: translateX(230%) skewX(-14deg); opacity: 0; }
 }
 
 /* ─── Brand / accent colours (theme-invariant defaults) ─── */

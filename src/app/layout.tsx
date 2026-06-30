@@ -33,7 +33,7 @@ export default function RootLayout({
         */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('tp_theme');document.documentElement.dataset.theme=(t==='light')?'light':(t==='cyberpunk')?'cyberpunk':'dark';}catch(e){}})();`,
+            __html: `(function(){try{var t=localStorage.getItem('tp_theme');document.documentElement.dataset.theme=(t==='light')?'light':(t==='cyberpunk')?'cyberpunk':(t==='lotr')?'lotr':'dark';}catch(e){}})();`,
           }}
         />
 

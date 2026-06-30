@@ -3,18 +3,18 @@
 import { createContext, useContext, useEffect, useState, startTransition, ReactNode } from 'react'
 import { storageGet, storageSet, STORAGE_KEYS } from '@/lib/storage'
 
-export type Theme = 'dark' | 'light' | 'cyberpunk'
+export type Theme = 'dark' | 'light' | 'cyberpunk' | 'lotr'
 
 interface ThemeContextValue {
   theme: Theme
   toggleTheme: () => void
-  activateCyberpunk: () => void
+  cycleSecretTheme: () => void
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
   theme: 'dark',
   toggleTheme: () => {},
-  activateCyberpunk: () => {},
+  cycleSecretTheme: () => {},
 })
 
 export function useTheme(): ThemeContextValue {
@@ -31,8 +31,9 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   useEffect(() => {
     const stored = storageGet<string>(STORAGE_KEYS.THEME)
     const resolved: Theme =
-      stored === 'light' ? 'light' :
+      stored === 'light'     ? 'light'     :
       stored === 'cyberpunk' ? 'cyberpunk' :
+      stored === 'lotr'      ? 'lotr'      :
       'dark'
     document.documentElement.dataset.theme = resolved
     startTransition(() => setTheme(resolved))
@@ -45,19 +46,27 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   }
 
   function toggleTheme() {
+    // Secret themes both exit to dark on left-click
     const next: Theme =
-      theme === 'cyberpunk' ? 'dark' :
-      theme === 'dark'      ? 'light' :
+      theme === 'cyberpunk' || theme === 'lotr' ? 'dark' :
+      theme === 'dark' ? 'light' :
       'dark'
     apply(next)
   }
 
-  function activateCyberpunk() {
-    apply(theme === 'cyberpunk' ? 'dark' : 'cyberpunk')
+  function cycleSecretTheme() {
+    // Right-click cycles: dark/light → cyberpunk → lotr → dark
+    if (theme === 'cyberpunk') {
+      apply('lotr')
+    } else if (theme === 'lotr') {
+      apply('dark')
+    } else {
+      apply('cyberpunk')
+    }
   }
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, activateCyberpunk }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, cycleSecretTheme }}>
       {children}
     </ThemeContext.Provider>
   )
