@@ -93,7 +93,98 @@
   --shadow: rgba(20,18,15,.45);
 }
 
-/* ─── Brand / accent colours (theme-invariant) ─── */
+/* ─── Cyberpunk theme (secret: right-click theme button) ─── */
+[data-theme="cyberpunk"] {
+  --bg:     #07040f;
+  --card:   #0e0a1c;
+  --pnl:    #160f28;
+  --trk:    #1d1535;
+  --hdr:    rgba(7,4,15,.88);
+  --bd:     rgba(0,255,245,.18);
+  --tx:     #e2f0ff;
+  --txs:    #85c8ff;
+  --txm:    #4d7aa0;
+  --pnlt:   #e2f0ff;
+  --pnls:   #7ab4e8;
+  --shadow: rgba(0,255,245,.3);
+
+  /* Neon accent overrides */
+  --green:   #b8ff00;
+  --teal:    #00fff5;
+  --sky:     #bf5fff;
+  --orange:  #ff6d00;
+  --red:     #ff0066;
+  --yellow:  #ffe600;
+  --emerald: #00ff88;
+}
+
+/* Scanlines overlay — fixed, non-interactive */
+[data-theme="cyberpunk"] body::before {
+  content: '';
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(0,0,0,.12) 3px,
+    rgba(0,0,0,.12) 4px
+  );
+}
+
+/* Neon glow on text headings */
+[data-theme="cyberpunk"] h1,
+[data-theme="cyberpunk"] h2 {
+  text-shadow: 0 0 28px rgba(0,255,245,.25), 0 0 60px rgba(0,255,245,.1);
+}
+
+/* Neon scrollbar */
+[data-theme="cyberpunk"] ::-webkit-scrollbar { width: 5px; height: 5px; }
+[data-theme="cyberpunk"] ::-webkit-scrollbar-track { background: var(--bg); }
+[data-theme="cyberpunk"] ::-webkit-scrollbar-thumb {
+  background: #00fff5;
+  border-radius: 3px;
+  box-shadow: 0 0 8px #00fff5;
+}
+
+/* Body bg glow bleed */
+[data-theme="cyberpunk"] body {
+  background: radial-gradient(ellipse at 15% 60%, rgba(80,0,200,.12) 0%, transparent 55%),
+              radial-gradient(ellipse at 85% 10%, rgba(0,255,245,.06) 0%, transparent 45%),
+              var(--bg);
+}
+
+/* Glitch keyframe — applied to logo in cyberpunk mode */
+@keyframes cpGlitch {
+  0%, 88%, 100% { transform: translate(0,0); filter: none; }
+  90%            { transform: translate(-3px,1px); filter: hue-rotate(90deg); }
+  92%            { transform: translate(3px,-1px); filter: hue-rotate(-90deg) brightness(1.4); }
+  94%            { transform: translate(-1px,0); filter: none; }
+  96%            { transform: translate(2px,1px); filter: hue-rotate(180deg); }
+  98%            { transform: translate(0,0); filter: none; }
+}
+
+/* Neon border pulse */
+@keyframes cpNeonPulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(0,255,245,.4), 0 0 24px rgba(0,255,245,.15); }
+  50%       { box-shadow: 0 0 16px rgba(0,255,245,.7), 0 0 48px rgba(0,255,245,.25), 0 0 80px rgba(0,255,245,.08); }
+}
+
+/* Apply glitch to header logo in cyberpunk */
+[data-theme="cyberpunk"] .tp-logo-mark {
+  animation: cpGlitch 6s ease-in-out infinite;
+}
+
+/* Neon active nav pill */
+[data-theme="cyberpunk"] .tp-nav-active {
+  background: #00fff5 !important;
+  color: #07040f !important;
+  box-shadow: 0 0 16px rgba(0,255,245,.5), 0 0 32px rgba(0,255,245,.2);
+}
+
+/* ─── Brand / accent colours (theme-invariant defaults) ─── */
 :root {
   --green:   #86bc25;
   --teal:    #0097a9;

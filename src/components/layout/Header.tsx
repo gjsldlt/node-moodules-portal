@@ -7,7 +7,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { useTheme } from './ThemeProvider'
 import { getAvatar } from '@/lib/identity'
 import { useNickname } from '@/hooks/useNickname'
-import { Sun, Moon, Menu, X } from 'lucide-react'
+import { Sun, Moon, Menu, X, Zap } from 'lucide-react'
 
 interface NavItem {
   label: string
@@ -25,7 +25,7 @@ const NAV_ITEMS: NavItem[] = [
 
 export function Header() {
   const pathname = usePathname()
-  const { theme, toggleTheme } = useTheme()
+  const { theme, toggleTheme, activateCyberpunk } = useTheme()
   const { nickname, triggerSwitch } = useNickname()
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [compactAvatar, setCompactAvatar] = useState(false)
@@ -101,7 +101,7 @@ export function Header() {
             aria-label="Node Moodus home"
             style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', flexShrink: 0 }}
           >
-            <div style={{ position: 'relative', width: '38px', height: '38px', flexShrink: 0 }}>
+            <div className="tp-logo-mark" style={{ position: 'relative', width: '38px', height: '38px', flexShrink: 0 }}>
               <div style={{ position: 'absolute', top: '0', left: '0', width: '18px', height: '18px', borderRadius: '50%', background: 'var(--green)' }} />
               <div style={{ position: 'absolute', top: '0', right: '0', width: '15px', height: '15px', borderRadius: '50%', background: 'var(--teal)', animation: 'tpBob 3s ease-in-out infinite' }} />
               <div style={{ position: 'absolute', bottom: '0', left: '50%', transform: 'translateX(-50%)', width: '16px', height: '16px', borderRadius: '50%', background: 'var(--orange)', animation: 'tpBob 3.4s ease-in-out 0.4s infinite' }} />
@@ -125,12 +125,13 @@ export function Header() {
                   key={item.href}
                   href={item.href}
                   aria-current={active ? 'page' : undefined}
+                  className={active ? 'tp-nav-active' : undefined}
                   style={{
                     display: 'inline-flex', alignItems: 'center',
                     padding: '6px 14px', borderRadius: '999px',
                     fontSize: '0.875rem', fontWeight: active ? 600 : 500,
                     whiteSpace: 'nowrap', textDecoration: 'none', minHeight: '36px',
-                    transition: 'background 0.15s, color 0.15s',
+                    transition: 'background 0.15s, color 0.15s, box-shadow 0.3s',
                     background: active ? 'var(--tx)' : 'transparent',
                     color: active ? 'var(--bg)' : 'var(--txs)',
                   }}
@@ -145,10 +146,30 @@ export function Header() {
           <div className="tp-header-controls" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0, marginLeft: 'auto' }}>
             <button
               onClick={toggleTheme}
-              aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
-              style={{ width: '38px', height: '38px', borderRadius: '50%', border: '1px solid var(--bd)', background: 'var(--trk)', color: 'var(--txs)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}
+              onContextMenu={(e) => { e.preventDefault(); activateCyberpunk() }}
+              aria-label={
+                theme === 'cyberpunk'
+                  ? 'Cyberpunk mode active — click to exit, right-click to toggle'
+                  : `Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`
+              }
+              title={theme !== 'cyberpunk' ? 'Right-click for a surprise' : undefined}
+              style={{
+                width: '38px', height: '38px', borderRadius: '50%',
+                border: theme === 'cyberpunk' ? '1px solid #00fff5' : '1px solid var(--bd)',
+                background: theme === 'cyberpunk' ? 'rgba(0,255,245,.12)' : 'var(--trk)',
+                color: theme === 'cyberpunk' ? '#00fff5' : 'var(--txs)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', flexShrink: 0,
+                boxShadow: theme === 'cyberpunk' ? '0 0 12px rgba(0,255,245,.4), 0 0 28px rgba(0,255,245,.15)' : 'none',
+                transition: 'all 0.3s ease',
+              }}
             >
-              {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+              {theme === 'cyberpunk'
+                ? <Zap size={16} />
+                : theme === 'dark'
+                  ? <Sun size={16} />
+                  : <Moon size={16} />
+              }
             </button>
 
             {avatar && nickname && (

@@ -3,16 +3,18 @@
 import { createContext, useContext, useEffect, useState, startTransition, ReactNode } from 'react'
 import { storageGet, storageSet, STORAGE_KEYS } from '@/lib/storage'
 
-type Theme = 'dark' | 'light'
+export type Theme = 'dark' | 'light' | 'cyberpunk'
 
 interface ThemeContextValue {
   theme: Theme
   toggleTheme: () => void
+  activateCyberpunk: () => void
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
   theme: 'dark',
   toggleTheme: () => {},
+  activateCyberpunk: () => {},
 })
 
 export function useTheme(): ThemeContextValue {
@@ -27,27 +29,35 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>('dark')
 
   useEffect(() => {
-    // Sync with what the ThemeScript set on <html> before hydration.
-    // startTransition defers the state update to avoid the cascading-render lint warning.
     const stored = storageGet<string>(STORAGE_KEYS.THEME)
-    const resolved: Theme = stored === 'light' ? 'light' : 'dark'
+    const resolved: Theme =
+      stored === 'light' ? 'light' :
+      stored === 'cyberpunk' ? 'cyberpunk' :
+      'dark'
     document.documentElement.dataset.theme = resolved
-    startTransition(() => {
-      setTheme(resolved)
-    })
+    startTransition(() => setTheme(resolved))
   }, [])
 
+  function apply(next: Theme) {
+    document.documentElement.dataset.theme = next
+    storageSet(STORAGE_KEYS.THEME, next)
+    setTheme(next)
+  }
+
   function toggleTheme() {
-    setTheme((prev) => {
-      const next: Theme = prev === 'dark' ? 'light' : 'dark'
-      document.documentElement.dataset.theme = next
-      storageSet(STORAGE_KEYS.THEME, next)
-      return next
-    })
+    const next: Theme =
+      theme === 'cyberpunk' ? 'dark' :
+      theme === 'dark'      ? 'light' :
+      'dark'
+    apply(next)
+  }
+
+  function activateCyberpunk() {
+    apply(theme === 'cyberpunk' ? 'dark' : 'cyberpunk')
   }
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, activateCyberpunk }}>
       {children}
     </ThemeContext.Provider>
   )
