@@ -268,7 +268,7 @@ export function WordOfDay({ nickname, initialWords, weekStart, onToast, onSubmit
       )}
 
       {/* This-week chips — pushed to bottom when card stretches */}
-      <div ref={chipsRef} style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: 'auto', paddingTop: '20px' }}>
+      <div ref={chipsRef} style={{ display: 'flex', gap: '6px', marginTop: 'auto', paddingTop: '20px' }}>
         {days.map((day, i) => {
           const dateStr = getISODateStr(day)
           const word = words[dateStr]
@@ -283,11 +283,13 @@ export function WordOfDay({ nickname, initialWords, weekStart, onToast, onSubmit
               disabled={!word}
               aria-label={word ? `${DAY_LABELS[i]}: ${word}${canEdit ? ' — click to edit' : ''}` : `${DAY_LABELS[i]}: no word yet`}
               style={{
+                flex: 1,
                 display: 'flex',
+                flexDirection: 'column',
                 alignItems: 'center',
-                gap: '6px',
-                padding: '6px 12px',
-                borderRadius: '999px',
+                gap: '3px',
+                padding: '8px 4px',
+                borderRadius: '14px',
                 border: word
                   ? `1px solid ${color}44`
                   : '1px solid var(--bd)',
@@ -295,18 +297,18 @@ export function WordOfDay({ nickname, initialWords, weekStart, onToast, onSubmit
                   ? `${color}18`
                   : 'transparent',
                 color: word ? color : 'var(--txm)',
-                fontSize: '13px',
-                fontWeight: 700,
-                cursor: word && canEdit ? 'pointer' : 'default',
                 fontFamily: 'inherit',
-                minHeight: '32px',
+                minHeight: '44px',
+                cursor: word && canEdit ? 'pointer' : 'default',
                 transition: shouldReduce ? 'none' : 'background 0.15s',
               }}
             >
-              <span style={{ fontSize: '11px', color: word ? color : 'var(--txm)', opacity: 0.7 }}>
+              <span style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: word ? color : 'var(--txm)', opacity: 0.65, lineHeight: 1 }}>
                 {DAY_LABELS[i]}
               </span>
-              <span>{word ?? '–'}</span>
+              <span style={{ fontSize: '13px', fontWeight: 700, lineHeight: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>
+                {word ?? '–'}
+              </span>
             </button>
           )
         })}
