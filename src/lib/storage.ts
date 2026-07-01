@@ -3,6 +3,7 @@
 export const STORAGE_KEYS = {
   NICKNAME:    'tp_nickname',
   THEME:       'tp_theme',
+  USER_AVATAR: 'tp_user_avatar',
   MOOD:        (nick: string) => `tp_mood_${nick}`,
   REMINDERS:   (nick: string) => `tp_rem_${nick}`,
   TEAM_DIST:   'tp_team_dist',

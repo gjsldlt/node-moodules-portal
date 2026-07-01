@@ -23,6 +23,15 @@ export function WheelOfNames({ participants, onWinner }: WheelOfNamesProps) {
   const [isSpinning, setIsSpinning] = useState(false)
   const [spinTarget, setSpinTarget] = useState<SpinTarget | null>(null)
   const [winner, setWinner] = useState<WheelUser | null>(null)
+  // Spin duration in seconds; 0 = instant
+  const [spinSecs, setSpinSecs] = useState(3.5)
+
+  function adjustDuration(delta: number) {
+    setSpinSecs((prev) => {
+      const next = Math.round((prev + delta) * 10) / 10
+      return Math.max(0, Math.min(10, next))
+    })
+  }
 
   const activePool = participants.filter(
     (p) => !removed.has(p.nickname) && !excluded.has(p.nickname)
@@ -83,6 +92,7 @@ export function WheelOfNames({ participants, onWinner }: WheelOfNamesProps) {
             participants={activePool}
             spinTarget={spinTarget}
             onSpinComplete={handleSpinComplete}
+            spinDuration={spinSecs * 1000}
           />
 
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
@@ -122,6 +132,74 @@ export function WheelOfNames({ participants, onWinner }: WheelOfNamesProps) {
               </span>
               {isSpinning ? 'Spinning…' : 'Spin the wheel'}
             </button>
+
+            {/* Spin duration stepper */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                marginTop: '2px',
+              }}
+            >
+              <span style={{ fontSize: '12px', color: 'var(--txm)', fontFamily: "'Hanken Grotesk', sans-serif" }}>
+                Spin duration
+              </span>
+              <button
+                onClick={() => adjustDuration(-0.5)}
+                disabled={isSpinning || spinSecs <= 0}
+                aria-label="Decrease spin duration"
+                style={{
+                  width: '28px',
+                  height: '28px',
+                  borderRadius: '50%',
+                  border: '1.5px solid var(--bd)',
+                  background: 'var(--trk)',
+                  color: 'var(--tx)',
+                  fontSize: '16px',
+                  lineHeight: 1,
+                  cursor: isSpinning || spinSecs <= 0 ? 'not-allowed' : 'pointer',
+                  opacity: isSpinning || spinSecs <= 0 ? 0.4 : 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'opacity 0.15s',
+                }}
+              >−</button>
+              <span
+                style={{
+                  minWidth: '40px',
+                  textAlign: 'center',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  color: 'var(--tx)',
+                  fontFamily: "'Hanken Grotesk', sans-serif",
+                }}
+              >
+                {spinSecs === 0 ? 'Instant' : `${spinSecs}s`}
+              </span>
+              <button
+                onClick={() => adjustDuration(0.5)}
+                disabled={isSpinning || spinSecs >= 10}
+                aria-label="Increase spin duration"
+                style={{
+                  width: '28px',
+                  height: '28px',
+                  borderRadius: '50%',
+                  border: '1.5px solid var(--bd)',
+                  background: 'var(--trk)',
+                  color: 'var(--tx)',
+                  fontSize: '16px',
+                  lineHeight: 1,
+                  cursor: isSpinning || spinSecs >= 10 ? 'not-allowed' : 'pointer',
+                  opacity: isSpinning || spinSecs >= 10 ? 0.4 : 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'opacity 0.15s',
+                }}
+              >+</button>
+            </div>
 
             {activePool.length === 0 && (
               <p style={{ margin: 0, fontSize: '13px', color: 'var(--txm)', textAlign: 'center' }}>

@@ -19,7 +19,9 @@ import {
 } from 'framer-motion'
 import FocusTrap from 'focus-trap-react'
 import { storageGet, storageSet, storageClear, STORAGE_KEYS } from '@/lib/storage'
-import { resolveNickname } from '@/app/actions/nickname'
+import { getAvatar, AVATAR_PALETTE, AVATAR_EMOJIS, AVATAR_BADGES } from '@/lib/identity'
+import { resolveNickname, validateSession, updateUserProfile } from '@/app/actions/nickname'
+import { AvatarCircle } from './AvatarCircle'
 import type { LocalUser, NicknameContextValue } from '@/types'
 
 // ─── Context ────────────────────────────────────────────────────────────────
@@ -291,22 +293,12 @@ function StepConfirm({
 
       {/* Avatar */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
-        <div
-          style={{
-            width: '64px',
-            height: '64px',
-            borderRadius: '50%',
-            background: pendingUser.color,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '32px',
-            animation: shouldReduce ? 'none' : 'tpBob 3s ease-in-out infinite',
-          }}
-          aria-hidden="true"
-        >
-          {pendingUser.emoji}
-        </div>
+        <AvatarCircle
+          color={pendingUser.color}
+          emoji={pendingUser.emoji}
+          size={64}
+          animate={!shouldReduce}
+        />
         <span style={{
           fontFamily: "'Bricolage Grotesque', sans-serif",
           fontSize: '1.1rem',
@@ -373,6 +365,310 @@ function StepConfirm({
   )
 }
 
+// ─── Step 3 — Edit profile ───────────────────────────────────────────────────
+
+const SECTION_LABEL_STYLE = {
+  fontSize: '0.75rem',
+  fontWeight: 600 as const,
+  color: 'var(--txm)',
+  margin: '0 0 8px',
+  textTransform: 'uppercase' as const,
+  letterSpacing: '0.06em',
+}
+
+interface StepEditProps {
+  shouldReduce: boolean
+  direction: 1 | -1
+  currentNickname: string
+  currentColor: string
+  currentEmoji: string
+  currentBadge: string
+  error: string | null
+  isSubmitting: boolean
+  onSave: (nickname: string, color: string, emoji: string, badge: string) => void
+  onCancel: () => void
+}
+
+function StepEdit({
+  shouldReduce,
+  direction,
+  currentNickname,
+  currentColor,
+  currentEmoji,
+  currentBadge,
+  error,
+  isSubmitting,
+  onSave,
+  onCancel,
+}: StepEditProps) {
+  const [nickname, setNickname] = useState(currentNickname)
+  const [selectedColor, setSelectedColor] = useState(currentColor)
+  const [selectedEmoji, setSelectedEmoji] = useState(currentEmoji)
+  const [selectedBadge, setSelectedBadge] = useState(currentBadge)
+  const variants = shouldReduce ? stepVariantsReduced : stepVariants
+
+  function handleSubmit(e: FormEvent) {
+    e.preventDefault()
+    if (!isSubmitting) onSave(nickname, selectedColor, selectedEmoji, selectedBadge)
+  }
+
+  const unchanged =
+    nickname.trim() === currentNickname &&
+    selectedColor === currentColor &&
+    selectedEmoji === currentEmoji &&
+    selectedBadge === currentBadge
+
+  return (
+    <motion.div
+      key="edit"
+      custom={direction}
+      variants={variants}
+      initial="enter"
+      animate="center"
+      exit="exit"
+      transition={t_step_enter}
+    >
+      <h2
+        id="gate-heading"
+        style={{
+          fontFamily: "'Bricolage Grotesque', sans-serif",
+          fontSize: 'clamp(20px, 4vw, 24px)',
+          fontWeight: 700,
+          color: 'var(--tx)',
+          margin: '0 0 4px',
+          letterSpacing: '-0.02em',
+          lineHeight: 1.1,
+        }}
+      >
+        Edit your profile
+      </h2>
+      <p style={{ color: 'var(--txs)', fontSize: '0.875rem', margin: '0 0 18px', lineHeight: 1.5 }}>
+        Customize your nickname, color, animal, and badge.
+      </p>
+
+      {/* Live avatar preview */}
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '18px' }}>
+        <AvatarCircle
+          color={selectedColor}
+          emoji={selectedEmoji}
+          badge={selectedBadge}
+          size={64}
+          animate={!shouldReduce}
+        />
+      </div>
+
+      <form onSubmit={handleSubmit}>
+        {/* Nickname */}
+        <label
+          htmlFor="edit-nickname-input"
+          style={{ ...SECTION_LABEL_STYLE, display: 'block', marginBottom: '6px' }}
+        >
+          Nickname
+        </label>
+        <input
+          id="edit-nickname-input"
+          type="text"
+          value={nickname}
+          onChange={(e) => setNickname(e.target.value)}
+          maxLength={30}
+          autoComplete="off"
+          autoCorrect="off"
+          spellCheck={false}
+          aria-describedby={error ? 'edit-error' : undefined}
+          aria-invalid={error ? 'true' : undefined}
+          style={{
+            width: '100%',
+            padding: '11px 16px',
+            borderRadius: '14px',
+            border: `1px solid ${error ? 'var(--red)' : 'var(--bd)'}`,
+            background: 'var(--trk)',
+            color: 'var(--tx)',
+            fontSize: '1rem',
+            fontFamily: 'inherit',
+            outline: 'none',
+            marginBottom: error ? '8px' : '18px',
+            transition: 'border-color 0.15s',
+            boxSizing: 'border-box',
+          }}
+          onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--teal)' }}
+          onBlur={(e) => { e.currentTarget.style.borderColor = error ? 'var(--red)' : 'var(--bd)' }}
+        />
+
+        {error && (
+          <span
+            id="edit-error"
+            role="alert"
+            style={{ display: 'block', color: 'var(--red)', fontSize: '0.82rem', marginBottom: '14px' }}
+          >
+            {error}
+          </span>
+        )}
+
+        {/* Background color — 9-per-row grid, 2 rows for 18 colors */}
+        <p style={SECTION_LABEL_STYLE}>Background</p>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(9, 1fr)',
+          gap: '7px',
+          marginBottom: '18px',
+        }}>
+          {AVATAR_PALETTE.map((color) => (
+            <button
+              key={color}
+              type="button"
+              onClick={() => setSelectedColor(color)}
+              aria-label={`Color ${color}`}
+              aria-pressed={selectedColor === color}
+              style={{
+                aspectRatio: '1',
+                borderRadius: '50%',
+                background: color,
+                border: selectedColor === color ? '3px solid var(--tx)' : '2px solid transparent',
+                outline: selectedColor === color ? '2px solid var(--card)' : 'none',
+                cursor: 'pointer',
+                transition: 'outline 0.12s, border 0.12s',
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Animal emoji — scrollable 6-col grid */}
+        <p style={SECTION_LABEL_STYLE}>Animal</p>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(6, 1fr)',
+          gap: '5px',
+          maxHeight: '168px',
+          overflowY: 'auto',
+          marginBottom: '18px',
+          paddingRight: '2px',
+        }}>
+          {AVATAR_EMOJIS.map((emoji) => (
+            <button
+              key={emoji}
+              type="button"
+              onClick={() => setSelectedEmoji(emoji)}
+              aria-label={emoji}
+              aria-pressed={selectedEmoji === emoji}
+              style={{
+                height: '40px',
+                borderRadius: '10px',
+                border: selectedEmoji === emoji ? '2px solid var(--teal)' : '2px solid transparent',
+                background: selectedEmoji === emoji ? 'var(--trk)' : 'transparent',
+                fontSize: '20px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'background 0.1s, border 0.1s',
+              }}
+            >
+              {emoji}
+            </button>
+          ))}
+        </div>
+
+        {/* Badge border */}
+        <p style={SECTION_LABEL_STYLE}>Badge</p>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: '6px',
+          marginBottom: '20px',
+        }}>
+          {AVATAR_BADGES.map((badge) => (
+            <button
+              key={badge.id}
+              type="button"
+              onClick={() => setSelectedBadge(badge.id)}
+              aria-label={badge.label}
+              aria-pressed={selectedBadge === badge.id}
+              style={{
+                height: '56px',
+                borderRadius: '12px',
+                border: selectedBadge === badge.id ? '2px solid var(--teal)' : '2px solid var(--bd)',
+                background: selectedBadge === badge.id ? 'var(--trk)' : 'transparent',
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '5px',
+                transition: 'background 0.1s, border 0.1s',
+                padding: '0 4px',
+              }}
+            >
+              {/* Mini avatar preview with badge */}
+              <AvatarCircle
+                color={selectedColor}
+                emoji={selectedEmoji}
+                badge={badge.id}
+                size={24}
+              />
+              <span style={{
+                fontSize: '10px',
+                fontWeight: 500,
+                color: 'var(--txs)',
+                lineHeight: 1,
+                textAlign: 'center',
+              }}>
+                {badge.label}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        {/* Actions */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <motion.button
+            type="submit"
+            disabled={isSubmitting || unchanged || nickname.trim().length < 2}
+            whileHover={{ y: shouldReduce ? 0 : -2 }}
+            transition={{ duration: 0.15, ease: 'easeOut' } as Transition}
+            style={{
+              width: '100%',
+              padding: '13px 28px',
+              borderRadius: '999px',
+              border: 'none',
+              background: 'var(--tx)',
+              color: 'var(--bg)',
+              fontSize: '1rem',
+              fontFamily: 'inherit',
+              fontWeight: 600,
+              cursor: isSubmitting || unchanged || nickname.trim().length < 2 ? 'not-allowed' : 'pointer',
+              minHeight: '44px',
+              opacity: isSubmitting || unchanged || nickname.trim().length < 2 ? 0.5 : 1,
+              transition: 'opacity 0.15s',
+            }}
+          >
+            {isSubmitting ? 'Saving…' : 'Save changes'}
+          </motion.button>
+
+          <button
+            type="button"
+            onClick={onCancel}
+            style={{
+              width: '100%',
+              padding: '13px 28px',
+              borderRadius: '999px',
+              border: 'none',
+              background: 'var(--trk)',
+              color: 'var(--tx)',
+              fontSize: '1rem',
+              fontFamily: 'inherit',
+              fontWeight: 500,
+              cursor: 'pointer',
+              minHeight: '44px',
+            }}
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </motion.div>
+  )
+}
+
 // ─── NicknameProvider ────────────────────────────────────────────────────────
 
 interface NicknameProviderProps {
@@ -384,13 +680,16 @@ export function NicknameProvider({ children }: NicknameProviderProps) {
 
   // undefined = hydration pending (SSR), null = absent, string = resolved
   const [nickname, setNickname] = useState<string | null | undefined>(undefined)
+  const [avatar, setAvatar] = useState<{ color: string; emoji: string; badge?: string } | null>(null)
   const [showGate, setShowGate] = useState(false)
   const [previousNickname, setPreviousNickname] = useState<string | null>(null)
-  const [step, setStep] = useState<'name' | 'confirm'>('name')
+  const [step, setStep] = useState<'name' | 'confirm' | 'edit'>('name')
   const [direction, setDirection] = useState<1 | -1>(1)
   const [pendingUser, setPendingUser] = useState<LocalUser | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [stepNameError, setStepNameError] = useState<string | null>(null)
+  const [stepEditError, setStepEditError] = useState<string | null>(null)
+  const [bannerMessage, setBannerMessage] = useState<string | null>(null)
   const [toastMessage, setToastMessage] = useState<string | null>(null)
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -406,18 +705,41 @@ export function NicknameProvider({ children }: NicknameProviderProps) {
   // react-hooks/set-state-in-effect lint rule (no synchronous setState in effect bodies).
   useEffect(() => {
     const stored = storageGet<string>(STORAGE_KEYS.NICKNAME)
-    startTransition(() => {
-      if (stored) {
+    const storedAvatar = storageGet<{ color: string; emoji: string; badge?: string }>(STORAGE_KEYS.USER_AVATAR)
+
+    if (stored) {
+      // Optimistically restore the session from localStorage immediately…
+      startTransition(() => {
         setNickname(stored)
-        // Fire-and-forget: update last_seen_at silently
-        resolveNickname(stored).catch(() => {
-          // Intentionally ignored — background update only
+        setAvatar(storedAvatar ?? getAvatar(stored))
+      })
+
+      // …then validate against the DB. If the account was deleted, clear and re-gate.
+      validateSession(stored)
+        .then((result) => {
+          if (result === 'deleted') {
+            startTransition(() => {
+              storageClear()
+              setNickname(null)
+              setAvatar(null)
+              setStep('name')
+              setDirection(1)
+              setStepNameError(null)
+              setBannerMessage('Your nickname was removed. Pick a new one to continue.')
+              setShowGate(true)
+            })
+          }
         })
-      } else {
+        .catch(() => {
+          // Network error — leave the session intact (fail-safe)
+        })
+    } else {
+      startTransition(() => {
         setNickname(null)
+        setAvatar(null)
         setShowGate(true)
-      }
-    })
+      })
+    }
   }, [])
 
   function showToast(message: string) {
@@ -445,12 +767,15 @@ export function NicknameProvider({ children }: NicknameProviderProps) {
     if (result.status === 'created') {
       storageClear()
       storageSet(STORAGE_KEYS.NICKNAME, result.user.nickname)
+      storageSet(STORAGE_KEYS.USER_AVATAR, { color: result.user.color, emoji: result.user.emoji })
       updateKnownUsers(result.user)
       setNickname(result.user.nickname)
+      setAvatar({ color: result.user.color, emoji: result.user.emoji })
       setShowGate(false)
       setStep('name')
       setDirection(1)
       setPreviousNickname(null)
+      setBannerMessage(null)
 
       // Dynamic import keeps canvas-confetti out of the SSR bundle
       const confetti = (await import('canvas-confetti')).default
@@ -480,12 +805,15 @@ export function NicknameProvider({ children }: NicknameProviderProps) {
       storageClear()
     }
     storageSet(STORAGE_KEYS.NICKNAME, pendingUser.nickname)
+    storageSet(STORAGE_KEYS.USER_AVATAR, { color: pendingUser.color, emoji: pendingUser.emoji })
     updateKnownUsers(pendingUser)
     setNickname(pendingUser.nickname)
+    setAvatar({ color: pendingUser.color, emoji: pendingUser.emoji })
     setShowGate(false)
     setStep('name')
     setDirection(1)
     setPreviousNickname(null)
+    setBannerMessage(null)
     showToast(`Welcome back, ${pendingUser.nickname}! ${pendingUser.emoji}`)
     setPendingUser(null)
   }
@@ -506,25 +834,70 @@ export function NicknameProvider({ children }: NicknameProviderProps) {
     setStep('name')
     setDirection(1)
     setStepNameError(null)
+    setStepEditError(null)
     setIsSubmitting(false)
     setShowGate(true)
   }
 
+  function triggerEdit() {
+    setPreviousNickname(nickname ?? null)
+    setStepEditError(null)
+    setIsSubmitting(false)
+    setStep('edit')
+    setDirection(1)
+    setShowGate(true)
+  }
+
+  async function handleSaveProfile(newNickname: string, newColor: string, newEmoji: string, newBadge: string) {
+    if (!nickname) return
+    setIsSubmitting(true)
+    setStepEditError(null)
+
+    const result = await updateUserProfile(nickname, {
+      nickname: newNickname,
+      avatarColor: newColor,
+      avatarEmoji: newEmoji,
+    })
+
+    if (result.status === 'ok') {
+      const updated = result.user
+      storageSet(STORAGE_KEYS.NICKNAME, updated.nickname)
+      storageSet(STORAGE_KEYS.USER_AVATAR, { color: updated.color, emoji: updated.emoji, badge: newBadge })
+      // Replace old entry in known users
+      const existing = storageGet<LocalUser[]>(STORAGE_KEYS.KNOWN_USERS) ?? []
+      const filtered = existing.filter(
+        (u) => u.nickname.toLowerCase() !== nickname.toLowerCase()
+      )
+      storageSet(STORAGE_KEYS.KNOWN_USERS, [...filtered, updated])
+      setNickname(updated.nickname)
+      setAvatar({ color: updated.color, emoji: updated.emoji, badge: newBadge })
+      setPreviousNickname(null)
+      setShowGate(false)
+      setStep('name')
+      showToast(`Profile updated! ${updated.emoji}`)
+    } else {
+      setStepEditError(result.message)
+    }
+
+    setIsSubmitting(false)
+  }
+
   function handleCancel() {
-    if (previousNickname) {
-      // Storage was never cleared — just restore the in-memory state
+    if (previousNickname && step !== 'edit') {
+      // Switch flow: storage was never cleared — restore the in-memory state
       setNickname(previousNickname)
     }
     setPreviousNickname(null)
     setShowGate(false)
     setStep('name')
     setStepNameError(null)
+    setStepEditError(null)
   }
 
   // Render nothing distinctive while waiting for hydration
   if (nickname === undefined) {
     return (
-      <NicknameContext.Provider value={{ nickname: null, triggerSwitch }}>
+      <NicknameContext.Provider value={{ nickname: null, avatar: null, triggerSwitch, triggerEdit }}>
         {children}
       </NicknameContext.Provider>
     )
@@ -533,7 +906,7 @@ export function NicknameProvider({ children }: NicknameProviderProps) {
   const activeCardVariants = shouldReduce ? cardVariantsReduced : cardVariants
 
   return (
-    <NicknameContext.Provider value={{ nickname: nickname ?? null, triggerSwitch }}>
+    <NicknameContext.Provider value={{ nickname: nickname ?? null, avatar, triggerSwitch, triggerEdit }}>
       {children}
 
       {/* Overlay — rendered after children so it sits on top in DOM order */}
@@ -564,7 +937,9 @@ export function NicknameProvider({ children }: NicknameProviderProps) {
             <FocusTrap
               focusTrapOptions={{
                 initialFocus:
-                  step === 'name' ? '#nickname-input' : '#confirm-yes-btn',
+                  step === 'name'    ? '#nickname-input' :
+                  step === 'edit'    ? '#edit-nickname-input' :
+                                       '#confirm-yes-btn',
                 allowOutsideClick: !!previousNickname,
                 returnFocusOnDeactivate: true,
               }}
@@ -590,9 +965,11 @@ export function NicknameProvider({ children }: NicknameProviderProps) {
                     borderRadius: '26px',
                     padding: '28px 28px 32px',
                     width: 'min(calc(100vw - 48px), 430px)',
+                    maxHeight: 'calc(100dvh - 48px)',
+                    overflowY: 'auto',
+                    overflowX: 'hidden',
                     boxShadow: '0 22px 46px -32px var(--shadow)',
                     position: 'relative',
-                    overflow: 'hidden',
                   }}
                 >
                   {/* Close button — only when switching from an existing account */}
@@ -627,6 +1004,22 @@ export function NicknameProvider({ children }: NicknameProviderProps) {
                     </span>
                   </div>
 
+                  {/* Deleted-account notice */}
+                  {bannerMessage && (
+                    <div style={{
+                      background: 'rgba(237,139,0,0.1)',
+                      border: '1px solid rgba(237,139,0,0.3)',
+                      borderRadius: '12px',
+                      padding: '10px 14px',
+                      marginBottom: '20px',
+                      fontSize: '0.85rem',
+                      color: 'var(--orange)',
+                      lineHeight: 1.5,
+                    }}>
+                      ⚠️ {bannerMessage}
+                    </div>
+                  )}
+
                   {/* Steps — keyed so AnimatePresence triggers on step change */}
                   <AnimatePresence mode="wait" custom={direction}>
                     {step === 'name' && (
@@ -648,6 +1041,21 @@ export function NicknameProvider({ children }: NicknameProviderProps) {
                         isSubmitting={isSubmitting}
                         onConfirm={handleConfirmYes}
                         onDeny={handleConfirmNo}
+                      />
+                    )}
+                    {step === 'edit' && nickname && (
+                      <StepEdit
+                        key="edit"
+                        shouldReduce={shouldReduce}
+                        direction={direction}
+                        currentNickname={nickname}
+                        currentColor={avatar?.color ?? getAvatar(nickname).color}
+                        currentEmoji={avatar?.emoji ?? getAvatar(nickname).emoji}
+                        currentBadge={avatar?.badge ?? 'none'}
+                        error={stepEditError}
+                        isSubmitting={isSubmitting}
+                        onSave={handleSaveProfile}
+                        onCancel={handleCancel}
                       />
                     )}
                   </AnimatePresence>

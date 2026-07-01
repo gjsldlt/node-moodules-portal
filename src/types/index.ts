@@ -11,8 +11,14 @@ export type NicknameResolveResult =
 
 export interface NicknameContextValue {
   nickname: string | null
+  avatar: { color: string; emoji: string; badge?: string } | null
   triggerSwitch: () => void
+  triggerEdit: () => void
 }
+
+export type UpdateProfileResult =
+  | { status: 'ok'; user: LocalUser }
+  | { status: 'error'; field?: 'nickname'; message: string }
 
 export interface LocalMoodEntry {
   key: 'great' | 'good' | 'okay' | 'meh' | 'rough'

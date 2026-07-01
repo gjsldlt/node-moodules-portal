@@ -10,17 +10,18 @@ interface WheelCanvasProps {
   participants: WheelUser[]
   spinTarget: { winnerIdx: number; id: number } | null
   onSpinComplete: (winnerIdx: number) => void
+  /** Spin duration in milliseconds. 0 = instant. Default 3500. */
+  spinDuration?: number
 }
 
 const SEGMENT_COLORS = ['#86bc25', '#0097a9', '#62b5e5', '#da291c', '#ed8b00', '#ffcd00', '#009a44']
-const SPIN_DURATION = 3500
 const CANVAS_SIZE = 360
 
 function easeOut(t: number): number {
   return 1 - Math.pow(1 - t, 3)
 }
 
-export function WheelCanvas({ participants, spinTarget, onSpinComplete }: WheelCanvasProps) {
+export function WheelCanvas({ participants, spinTarget, onSpinComplete, spinDuration = 3500 }: WheelCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const rotationRef = useRef(0)
   const rafRef = useRef(0)
@@ -32,6 +33,8 @@ export function WheelCanvas({ participants, spinTarget, onSpinComplete }: WheelC
   const shouldReduceRef = useRef<boolean | null>(null)
   const shouldReduce = useReducedMotion()
   shouldReduceRef.current = shouldReduce
+  const spinDurationRef = useRef(spinDuration)
+  spinDurationRef.current = spinDuration
 
   const drawWheel = useCallback(() => {
     const canvas = canvasRef.current
@@ -159,7 +162,9 @@ export function WheelCanvas({ participants, spinTarget, onSpinComplete }: WheelC
     const { winnerIdx } = spinTarget
     const segAngle = (2 * Math.PI) / n
 
-    if (shouldReduceRef.current) {
+    const duration = spinDurationRef.current
+
+    if (shouldReduceRef.current || duration === 0) {
       // Skip animation — jump directly to winner
       const targetNorm =
         ((-winnerIdx * segAngle - segAngle / 2) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI)
@@ -180,7 +185,7 @@ export function WheelCanvas({ participants, spinTarget, onSpinComplete }: WheelC
 
     function tick(now: number) {
       const elapsed = now - startTime
-      const t = Math.min(elapsed / SPIN_DURATION, 1)
+      const t = Math.min(elapsed / duration, 1)
       rotationRef.current = startRotation + (targetRotation - startRotation) * easeOut(t)
       drawWheel()
       if (t < 1) {

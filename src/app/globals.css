@@ -150,6 +150,18 @@
   font-size: 17px !important;
 }
 
+/* ─── Global scrollbar — thin, uses design tokens ─── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--bd);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--txm); }
+
+/* Firefox */
+* { scrollbar-width: thin; scrollbar-color: var(--bd) transparent; }
+
 /* Neon scrollbar */
 [data-theme="cyberpunk"] ::-webkit-scrollbar { width: 5px; height: 5px; }
 [data-theme="cyberpunk"] ::-webkit-scrollbar-track { background: var(--bg); }

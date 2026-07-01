@@ -5,8 +5,8 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { useTheme } from './ThemeProvider'
-import { getAvatar } from '@/lib/identity'
 import { useNickname } from '@/hooks/useNickname'
+import { AvatarCircle } from './AvatarCircle'
 import { Sun, Moon, Menu, X, Zap, ScrollText } from 'lucide-react'
 
 interface NavItem {
@@ -26,7 +26,7 @@ const NAV_ITEMS: NavItem[] = [
 export function Header() {
   const pathname = usePathname()
   const { theme, toggleTheme, cycleSecretTheme } = useTheme()
-  const { nickname, triggerSwitch } = useNickname()
+  const { nickname, avatar, triggerSwitch, triggerEdit } = useNickname()
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [compactAvatar, setCompactAvatar] = useState(false)
   const shouldReduce = useReducedMotion()
@@ -38,8 +38,6 @@ export function Header() {
     mq.addEventListener('change', check)
     return () => mq.removeEventListener('change', check)
   }, [])
-
-  const avatar = nickname ? getAvatar(nickname) : null
 
   function isActive(href: string): boolean {
     if (href === '/') return pathname === '/'
@@ -184,16 +182,17 @@ export function Header() {
 
             {avatar && nickname && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'var(--trk)', border: '1px solid var(--bd)', borderRadius: '999px', padding: compactAvatar ? '2px' : '2px 10px 2px 2px' }}>
-                <div
-                  onClick={triggerSwitch}
+                <AvatarCircle
+                  color={avatar.color}
+                  emoji={avatar.emoji}
+                  badge={avatar.badge}
+                  size={34}
+                  onClick={triggerEdit}
                   role="button"
                   tabIndex={0}
-                  aria-label="Switch user"
-                  onKeyDown={(e) => e.key === 'Enter' && triggerSwitch()}
-                  style={{ width: '34px', height: '34px', borderRadius: '50%', background: avatar.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0, cursor: 'pointer' }}
-                >
-                  {avatar.emoji}
-                </div>
+                  ariaLabel="Edit profile"
+                  onKeyDown={(e) => e.key === 'Enter' && triggerEdit()}
+                />
                 {!compactAvatar && (
                   <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--tx)', maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {nickname}
@@ -295,14 +294,27 @@ export function Header() {
               {avatar && nickname && (
                 <div style={{ padding: '16px 20px', borderTop: '1px solid var(--bd)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: avatar.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0 }}>
-                      {avatar.emoji}
-                    </div>
+                    <AvatarCircle
+                      color={avatar.color}
+                      emoji={avatar.emoji}
+                      badge={avatar.badge}
+                      size={38}
+                      onClick={() => { triggerEdit(); closeDrawer() }}
+                      role="button"
+                      tabIndex={0}
+                      ariaLabel="Edit profile"
+                      onKeyDown={(e) => e.key === 'Enter' && (triggerEdit(), closeDrawer())}
+                    />
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--tx)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nickname}</div>
-                      <button onClick={() => { triggerSwitch(); closeDrawer() }} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: '12px', color: 'var(--txm)', fontFamily: 'inherit' }}>
-                        Switch user ⇄
-                      </button>
+                      <div style={{ display: 'flex', gap: '10px' }}>
+                        <button onClick={() => { triggerEdit(); closeDrawer() }} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: '12px', color: 'var(--txm)', fontFamily: 'inherit' }}>
+                          Edit profile ✏️
+                        </button>
+                        <button onClick={() => { triggerSwitch(); closeDrawer() }} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: '12px', color: 'var(--txm)', fontFamily: 'inherit' }}>
+                          Switch ⇄
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
