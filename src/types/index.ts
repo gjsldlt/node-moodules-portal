@@ -2,6 +2,7 @@ export interface LocalUser {
   nickname: string
   color: string
   emoji: string
+  badge: string
 }
 
 export type NicknameResolveResult =

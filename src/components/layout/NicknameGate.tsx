@@ -714,10 +714,12 @@ export function NicknameProvider({ children }: NicknameProviderProps) {
         setAvatar(storedAvatar ?? getAvatar(stored))
       })
 
-      // …then validate against the DB. If the account was deleted, clear and re-gate.
+      // …then validate against the DB.
+      // On 'valid': sync avatar from DB so edits on another device propagate here.
+      // On 'deleted': clear storage and prompt for a new nickname.
       validateSession(stored)
         .then((result) => {
-          if (result === 'deleted') {
+          if (result.status === 'deleted') {
             startTransition(() => {
               storageClear()
               setNickname(null)
@@ -727,6 +729,15 @@ export function NicknameProvider({ children }: NicknameProviderProps) {
               setStepNameError(null)
               setBannerMessage('Your nickname was removed. Pick a new one to continue.')
               setShowGate(true)
+            })
+          } else if (result.user.color) {
+            // Sync fresh DB values (handles avatar edits made on another device)
+            const synced = { color: result.user.color, emoji: result.user.emoji, badge: result.user.badge }
+            storageSet(STORAGE_KEYS.USER_AVATAR, synced)
+            storageSet(STORAGE_KEYS.NICKNAME, result.user.nickname)
+            startTransition(() => {
+              setNickname(result.user.nickname)
+              setAvatar(synced)
             })
           }
         })
@@ -767,10 +778,10 @@ export function NicknameProvider({ children }: NicknameProviderProps) {
     if (result.status === 'created') {
       storageClear()
       storageSet(STORAGE_KEYS.NICKNAME, result.user.nickname)
-      storageSet(STORAGE_KEYS.USER_AVATAR, { color: result.user.color, emoji: result.user.emoji })
+      storageSet(STORAGE_KEYS.USER_AVATAR, { color: result.user.color, emoji: result.user.emoji, badge: result.user.badge })
       updateKnownUsers(result.user)
       setNickname(result.user.nickname)
-      setAvatar({ color: result.user.color, emoji: result.user.emoji })
+      setAvatar({ color: result.user.color, emoji: result.user.emoji, badge: result.user.badge })
       setShowGate(false)
       setStep('name')
       setDirection(1)
@@ -805,10 +816,10 @@ export function NicknameProvider({ children }: NicknameProviderProps) {
       storageClear()
     }
     storageSet(STORAGE_KEYS.NICKNAME, pendingUser.nickname)
-    storageSet(STORAGE_KEYS.USER_AVATAR, { color: pendingUser.color, emoji: pendingUser.emoji })
+    storageSet(STORAGE_KEYS.USER_AVATAR, { color: pendingUser.color, emoji: pendingUser.emoji, badge: pendingUser.badge })
     updateKnownUsers(pendingUser)
     setNickname(pendingUser.nickname)
-    setAvatar({ color: pendingUser.color, emoji: pendingUser.emoji })
+    setAvatar({ color: pendingUser.color, emoji: pendingUser.emoji, badge: pendingUser.badge })
     setShowGate(false)
     setStep('name')
     setDirection(1)
@@ -857,12 +868,13 @@ export function NicknameProvider({ children }: NicknameProviderProps) {
       nickname: newNickname,
       avatarColor: newColor,
       avatarEmoji: newEmoji,
+      avatarBadge: newBadge,
     })
 
     if (result.status === 'ok') {
       const updated = result.user
       storageSet(STORAGE_KEYS.NICKNAME, updated.nickname)
-      storageSet(STORAGE_KEYS.USER_AVATAR, { color: updated.color, emoji: updated.emoji, badge: newBadge })
+      storageSet(STORAGE_KEYS.USER_AVATAR, { color: updated.color, emoji: updated.emoji, badge: updated.badge })
       // Replace old entry in known users
       const existing = storageGet<LocalUser[]>(STORAGE_KEYS.KNOWN_USERS) ?? []
       const filtered = existing.filter(
@@ -870,7 +882,7 @@ export function NicknameProvider({ children }: NicknameProviderProps) {
       )
       storageSet(STORAGE_KEYS.KNOWN_USERS, [...filtered, updated])
       setNickname(updated.nickname)
-      setAvatar({ color: updated.color, emoji: updated.emoji, badge: newBadge })
+      setAvatar({ color: updated.color, emoji: updated.emoji, badge: updated.badge })
       setPreviousNickname(null)
       setShowGate(false)
       setStep('name')

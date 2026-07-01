@@ -1,10 +1,24 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { getAvatar, AVATAR_PALETTE, AVATAR_EMOJIS } from '@/lib/identity'
+import { getAvatar, AVATAR_PALETTE, AVATAR_EMOJIS, AVATAR_BADGES } from '@/lib/identity'
 import type { NicknameResolveResult, UpdateProfileResult, LocalUser } from '@/types'
 
 const NICKNAME_REGEX = /^[a-zA-Z0-9 \-]+$/
+
+function rowToLocalUser(row: {
+  nickname: string
+  avatar_color: string
+  avatar_emoji: string
+  avatar_badge: string
+}): LocalUser {
+  return {
+    nickname: row.nickname,
+    color: row.avatar_color,
+    emoji: row.avatar_emoji,
+    badge: row.avatar_badge ?? 'none',
+  }
+}
 
 /**
  * Resolve a nickname against the users table.
@@ -18,7 +32,6 @@ const NICKNAME_REGEX = /^[a-zA-Z0-9 \-]+$/
 export async function resolveNickname(nickname: string): Promise<NicknameResolveResult> {
   const trimmed = nickname.trim()
 
-  // Validation
   if (trimmed.length < 2) {
     return { status: 'error', message: 'Nickname must be at least 2 characters.' }
   }
@@ -32,7 +45,6 @@ export async function resolveNickname(nickname: string): Promise<NicknameResolve
   try {
     const supabase = await createClient()
 
-    // citext column handles case-insensitive equality automatically
     const { data: existing, error: selectError } = await supabase
       .from('users')
       .select('*')
@@ -45,7 +57,6 @@ export async function resolveNickname(nickname: string): Promise<NicknameResolve
     }
 
     if (!existing) {
-      // New user — compute avatar and insert
       const avatar = getAvatar(trimmed)
 
       const { data: inserted, error: insertError } = await supabase
@@ -54,6 +65,7 @@ export async function resolveNickname(nickname: string): Promise<NicknameResolve
           nickname: trimmed,
           avatar_color: avatar.color,
           avatar_emoji: avatar.emoji,
+          avatar_badge: 'none',
         })
         .select('*')
         .single()
@@ -63,31 +75,17 @@ export async function resolveNickname(nickname: string): Promise<NicknameResolve
         return { status: 'error', message: 'Something went wrong. Try again.' }
       }
 
-      const user: LocalUser = {
-        nickname: inserted.nickname,
-        color: inserted.avatar_color,
-        emoji: inserted.avatar_emoji,
-      }
-      return { status: 'created', user }
+      return { status: 'created', user: rowToLocalUser(inserted) }
     }
 
-    // Existing user — update last_seen_at
-    const { error: updateError } = await supabase
+    // Existing user — update last_seen_at in background
+    supabase
       .from('users')
       .update({ last_seen_at: new Date().toISOString() })
       .eq('id', existing.id)
+      .then(() => {}, () => {})
 
-    if (updateError) {
-      // Non-fatal — still treat as exists; log and continue
-      console.error('[resolveNickname] update error:', updateError)
-    }
-
-    const user: LocalUser = {
-      nickname: existing.nickname,
-      color: existing.avatar_color,
-      emoji: existing.avatar_emoji,
-    }
-    return { status: 'exists', user }
+    return { status: 'exists', user: rowToLocalUser(existing) }
   } catch (err) {
     console.error('[resolveNickname] unexpected error:', err)
     return { status: 'error', message: 'Something went wrong. Try again.' }
@@ -97,31 +95,35 @@ export async function resolveNickname(nickname: string): Promise<NicknameResolve
 /**
  * Validate an existing session on page load.
  *
- * - Nickname found in DB → update last_seen_at, return 'valid'
- * - Nickname NOT found   → account was deleted, return 'deleted'
- * - DB/network error     → return 'valid' (fail-safe: don't lock out on transient errors)
+ * - Nickname found in DB → update last_seen_at, return { status: 'valid', user }
+ * - Nickname NOT found   → account was deleted, return { status: 'deleted' }
+ * - DB/network error     → return { status: 'valid', user: null } (fail-safe: don't lock out on transient errors)
  *
  * Never creates a new row — that is resolveNickname's job.
+ * Returns fresh user data so callers can sync avatar state from DB on every load.
  */
-export async function validateSession(nickname: string): Promise<'valid' | 'deleted'> {
+export async function validateSession(
+  nickname: string,
+): Promise<{ status: 'valid'; user: LocalUser } | { status: 'deleted' }> {
   const trimmed = nickname.trim()
-  if (!trimmed) return 'deleted'
+  if (!trimmed) return { status: 'deleted' }
 
   try {
     const supabase = await createClient()
 
     const { data: existing, error } = await supabase
       .from('users')
-      .select('id')
+      .select('*')
       .eq('nickname', trimmed)
       .maybeSingle()
 
     if (error) {
       console.error('[validateSession] select error:', error)
-      return 'valid' // fail-safe
+      // Fail-safe: treat as valid with locally-stored data
+      return { status: 'valid', user: { nickname: trimmed, color: '', emoji: '', badge: 'none' } }
     }
 
-    if (!existing) return 'deleted'
+    if (!existing) return { status: 'deleted' }
 
     // Background last_seen_at update — ignore errors
     supabase
@@ -130,20 +132,21 @@ export async function validateSession(nickname: string): Promise<'valid' | 'dele
       .eq('id', existing.id)
       .then(() => {}, () => {})
 
-    return 'valid'
+    return { status: 'valid', user: rowToLocalUser(existing) }
   } catch {
-    return 'valid' // fail-safe on network error
+    // Fail-safe on network error — return with empty avatar so caller keeps localStorage values
+    return { status: 'valid', user: { nickname: trimmed, color: '', emoji: '', badge: 'none' } }
   }
 }
 
 /**
- * Update a user's nickname, avatar color, and/or emoji.
+ * Update a user's nickname, avatar color, emoji, and badge.
  * Identified by their current nickname (service role bypasses RLS).
  * Never throws. All paths return UpdateProfileResult.
  */
 export async function updateUserProfile(
   currentNickname: string,
-  updates: { nickname: string; avatarColor: string; avatarEmoji: string },
+  updates: { nickname: string; avatarColor: string; avatarEmoji: string; avatarBadge: string },
 ): Promise<UpdateProfileResult> {
   const trimmedNew = updates.nickname.trim()
   const trimmedCurrent = currentNickname.trim()
@@ -162,6 +165,9 @@ export async function updateUserProfile(
   }
   if (!(AVATAR_EMOJIS as readonly string[]).includes(updates.avatarEmoji)) {
     return { status: 'error', message: 'Invalid avatar emoji.' }
+  }
+  if (!AVATAR_BADGES.some((b) => b.id === updates.avatarBadge)) {
+    return { status: 'error', message: 'Invalid badge.' }
   }
 
   try {
@@ -187,6 +193,7 @@ export async function updateUserProfile(
         nickname: trimmedNew,
         avatar_color: updates.avatarColor,
         avatar_emoji: updates.avatarEmoji,
+        avatar_badge: updates.avatarBadge,
         last_seen_at: new Date().toISOString(),
       })
       .eq('nickname', trimmedCurrent)
@@ -198,14 +205,7 @@ export async function updateUserProfile(
       return { status: 'error', message: 'Something went wrong. Try again.' }
     }
 
-    return {
-      status: 'ok',
-      user: {
-        nickname: updated.nickname,
-        color: updated.avatar_color,
-        emoji: updated.avatar_emoji,
-      },
-    }
+    return { status: 'ok', user: rowToLocalUser(updated) }
   } catch (err) {
     console.error('[updateUserProfile] unexpected error:', err)
     return { status: 'error', message: 'Something went wrong. Try again.' }

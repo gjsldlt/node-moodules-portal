@@ -10,6 +10,7 @@ export type Database = {
           nickname: string
           avatar_color: string
           avatar_emoji: string
+          avatar_badge: string
           created_at: string
           last_seen_at: string
         }
@@ -18,6 +19,7 @@ export type Database = {
           nickname: string
           avatar_color: string
           avatar_emoji: string
+          avatar_badge?: string
           created_at?: string
           last_seen_at?: string
         }
@@ -26,6 +28,7 @@ export type Database = {
           nickname?: string
           avatar_color?: string
           avatar_emoji?: string
+          avatar_badge?: string
           created_at?: string
           last_seen_at?: string
         }
